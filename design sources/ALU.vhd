@@ -22,21 +22,33 @@ begin
 
 process(SrcA, SrcB, ALUControl) is
     case(ALUControl) is
-    when "0000" =>
+    when "0000" => -- ADD
         ALUResult <= std_logic_vector(signed(SrcA) + signed(SrcB));
-    when "0001" =>
+        if (SrcA xor ALUResult(N - 1) = '1') and (SrcA xnor SrcB = '1') then
+            ALUFlags(0) = '1';
+    when "0001" => -- SUB
         ALUResult <= std_logic_vector(signed(SrcA) - signed(SrcB));
-    when "0010" =>
-        if signed(SrcA) > signed(SrcB) then
-            ALUResult <= "00000001";
+        if (SrcA xor ALUResult(N - 1) = '1') and (SrcA xnor SrcB = '0') then
+            ALUFlags(0) = '1';
+    when "0010" => -- CMP
+        if signed(SrcA) - signed(SrcB) > 0 then
+            ALUResult(0) <= ('1' others => '0');
         else
-            ALUResult <= "00000000";
+            ALUResult <= (others => '0');
         end if;
-    when "0011" =>
+    when "0011" => -- AND
         ALUResult <= SrcA and SrcB;
-    when "0100" =>
+    when "0100" => -- XOR
         ALUResult <= SrcA xor SrcB;
     end case;
+        
+    if ALUResult(N - 1) = '1' then
+        ALUFlags(3) <= '1';
+    end if;
+    if nor ALUResult = '1' then
+        ALUFlags(2) <= '1';
+    end if;
+   
 end process;
         
 end Behavioral;
