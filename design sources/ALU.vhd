@@ -21,6 +21,7 @@ architecture Behavioral of ALU is
 begin
 
 process(SrcA, SrcB, ALUControl) is
+begin
     case(ALUControl) is
     when "0000" => -- ADD
         ALUResult <= std_logic_vector(signed(SrcA) + signed(SrcB));
