@@ -4,13 +4,13 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity ALUmux is
     generic(
-        N : integer := 32;
+        N : integer := 32
         );        
     port(
         ALUSrc : in std_logic;
         A2     : in std_logic_vector(N - 1 downto 0);
         ExtImm : in std_logic_vector(N - 1 downto 0);
-        SrcB   : out std_logic_vector(N - 1 downto 0);
+        SrcB   : out std_logic_vector(N - 1 downto 0)
         );
 end ALUmux;
 
