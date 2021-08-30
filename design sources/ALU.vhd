@@ -22,15 +22,17 @@ begin
 
 process(SrcA, SrcB, ALUControl) is
 begin
-    case(ALUControl) is
+    case ALUControl is
     when "0000" => -- ADD
         ALUResult <= std_logic_vector(signed(SrcA) + signed(SrcB));
         if (SrcA xor ALUResult(N - 1) = '1') and (SrcA xnor SrcB = '1') then
             ALUFlags(0) = '1';
+        end if;
     when "0001" => -- SUB
         ALUResult <= std_logic_vector(signed(SrcA) - signed(SrcB));
         if (SrcA xor ALUResult(N - 1) = '1') and (SrcA xnor SrcB = '0') then
             ALUFlags(0) = '1';
+        end if;
     when "0010" => -- CMP
         if signed(SrcA) - signed(SrcB) > 0 then
             ALUResult(0) <= ('1' others => '0');
