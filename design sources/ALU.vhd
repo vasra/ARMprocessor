@@ -18,24 +18,28 @@ end ALU;
 
 architecture Behavioral of ALU is
 
+signal result : std_logic_vector(N - 1 downto 0);
 begin
 
 process(SrcA, SrcB, ALUControl) is
 begin
     case ALUControl is
     when "0000" => -- ADD
-        ALUResult <= std_logic_vector(signed(SrcA) + signed(SrcB));
-        if (SrcA xor ALUResult(N - 1) = '1') and (SrcA xnor SrcB = '1') then
+        result <= std_logic_vector(signed(SrcA) + signed(SrcB));
+        if (SrcA(N - 1) xor result(N - 1) = '1') and (SrcA(N - 1) xnor SrcB(N - 1) = '1') then
             ALUFlags(0) = '1';
         end if;
+        ALUResult <= result;
     when "0001" => -- SUB
-        ALUResult <= std_logic_vector(signed(SrcA) - signed(SrcB));
-        if (SrcA xor ALUResult(N - 1) = '1') and (SrcA xnor SrcB = '0') then
+        result <= std_logic_vector(signed(SrcA) - signed(SrcB));
+        if (SrcA(N - 1) xor result(N - 1) = '1') and (SrcA(N - 1) xnor SrcB(N - 1) = '0') then
             ALUFlags(0) = '1';
         end if;
+        ALUResult <= result;
     when "0010" => -- CMP
         if signed(SrcA) - signed(SrcB) > 0 then
-            ALUResult(0) <= ('1' others => '0');
+            ALUResult <= (others => '0');
+            ALUResult(0) <= '1';
         else
             ALUResult <= (others => '0');
         end if;
