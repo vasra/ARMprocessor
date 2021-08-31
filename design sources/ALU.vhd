@@ -49,10 +49,10 @@ begin
         ALUResult <= SrcA xor SrcB;
     end case;
         
-    if ALUResult(N - 1) = '1' then
+    if result(N - 1) = '1' then
         ALUFlags(3) <= '1';
     end if;
-    if nor ALUResult = '1' then
+    if nor result = '1' then
         ALUFlags(2) <= '1';
     end if;
    
