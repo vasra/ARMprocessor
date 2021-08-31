@@ -1,11 +1,86 @@
 library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity ADDSUB is
+    generic(
+            N : integer := 32
+            );
+    port(
+         SUBorADD : in std_logic;
+         A        : in std_logic_vector(N - 1 downto 0);
+         B        : in std_logic_vector(N - 1 downto 0);
+         S        : out std_logic_vector(N - 1 downto 0);
+         Cout     : out std_logic;
+         OV       : out std_logic
+         );
+end ADDSUB;
+
+architecture Behavioral of ADDSUB is
+begin
+
+ADDSUB: process (A, B)
+    variable A_s, B_s, S_s: signed (N + 1 downto 0);
+begin
+    A_s := signed('0' & A(N - 1)& A);
+    B_s := signed('0' & B(N - 1)& B);
+    
+    if (SUBorADD = '1') then S_s := A_s - B_s;
+    else S_s := A_s + B_s;
+    end if;
+    
+    S <= std_logic_vector(S_s(N - 1 downto 0));
+    OV <= S_s(N) xor S_s(N - 1);
+    Cout <= S_s(N + 1);
+end process;
+
+end Behavioral;
+
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+
+entity BSHIFTER is -- barrel shifter
+    generic(
+            N : integer := 32
+            );
+    port(
+        S          : in std_logic_vector(1 downto 0);
+        shamt      : in std_logic_vector(1 downto 0);
+        bshift_in  : in std_logic_vector(3 downto 0);
+        bshift_out : out std_logic_vector(3 downto 0)
+        );
+end BSHIFTER;
+
+architecture Behavioral of BSHIFTER is
+begin
+
+BSHIFTER: process (S, shamt, bshift_in)
+    variable shamt_n : NATURAL range 0 to 3;
+    variable X_u : UNSIGNED (3 downto 0);
+    variable X_s : SIGNED (3 downto 0);
+begin
+    shamt_n := to_integer(unsigned(shamt));
+    X_u := unsigned (bshift_in);
+    X_s := signed (bshift_in);
+    case S is
+    when "00" => bshift_out <= std_logic_vector(SHIFT_LEFT (X_u, shamt_n));
+    when "01" => bshift_out <= std_logic_vector(SHIFT_RIGHT (X_u, shamt_n));
+    when "10" => bshift_out <= std_logic_vector(SHIFT_RIGHT (X_s, shamt_n));
+    when "11" => bshift_out <= std_logic_vector(ROTATE_RIGHT (X_s, shamt_n));
+    when others => bshift_out <= "----";
+    end case;
+    end process;
+end Behavioral;
+
+library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity ALU is
     generic(
-        N : integer := 32
-        );
+            N : integer := 32
+            );
     port(
         ALUSrc     : in std_logic;
         ALUControl : in std_logic_vector(3 downto 0);
@@ -21,41 +96,32 @@ architecture Behavioral of ALU is
 signal result : std_logic_vector(N - 1 downto 0);
 begin
 
-process(SrcA, SrcB, ALUControl) is
-begin
-    case ALUControl is
-    when "0000" => -- ADD
-        result <= std_logic_vector(signed(SrcA) + signed(SrcB));
-        if (SrcA(N - 1) xor result(N - 1) = '1') and (SrcA(N - 1) xnor SrcB(N - 1) = '1') then
-            ALUFlags(0) = '1';
-        end if;
-        ALUResult <= result;
-    when "0001" => -- SUB
-        result <= std_logic_vector(signed(SrcA) - signed(SrcB));
-        if (SrcA(N - 1) xor result(N - 1) = '1') and (SrcA(N - 1) xnor SrcB(N - 1) = '0') then
-            ALUFlags(0) = '1';
-        end if;
-        ALUResult <= result;
-    when "0010" => -- CMP
-        if signed(SrcA) - signed(SrcB) > 0 then
-            ALUResult <= (others => '0');
-            ALUResult(0) <= '1';
-        else
-            ALUResult <= (others => '0');
-        end if;
-    when "0011" => -- AND
-        ALUResult <= SrcA and SrcB;
-    when "0100" => -- XOR
-        ALUResult <= SrcA xor SrcB;
-    end case;
+--process(SrcA, SrcB, ALUControl) is
+--begin
+--    case ALUControl is
+--    when "0000" => -- ADD
+--        result <= std_logic_vector(signed(SrcA) + signed(SrcB));
+--        ALUResult <= result;
+--    when "0001" => -- SUB
+--        result <= std_logic_vector(signed(SrcA) - signed(SrcB));
+--        ALUResult <= result;
+--    when "0010" => -- CMP
+--        if signed(SrcA) - signed(SrcB) > 0 then
+--            ALUResult <= (others => '0');
+--            ALUResult(0) <= '1';
+--        else
+--            ALUResult <= (others => '0');
+--        end if;
+--    when "0011" => -- AND
+--        ALUResult <= SrcA and SrcB;
+--    when "0100" => -- XOR
+--        ALUResult <= SrcA xor SrcB;
+--    end case;
         
-    if result(N - 1) = '1' then
-        ALUFlags(3) <= '1';
-    end if;
-    if nor result = '1' then
-        ALUFlags(2) <= '1';
-    end if;
+--    if result(N - 1) = '1' then
+--        ALUFlags(3) <= '1';
+--    end if;
    
-end process;
+--end process;
         
 end Behavioral;
