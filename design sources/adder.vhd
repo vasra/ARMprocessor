@@ -27,11 +27,11 @@ entity ADDER is
         N : integer := 32
         );        
     port(
-        CIN  : in std_logic_vector(N - 1 downto 0);
-        A    : in std_logic_vector(N - 1 downto 0);
-        B    : in std_logic_vector(N - 1 downto 0);
-        S    : out std_logic_vector(N - 1 downto 0);
-        Cout : out std_logic
+        CIN   : in std_logic_vector(N - 1 downto 0);
+        A     : in std_logic_vector(N - 1 downto 0);
+        B     : in std_logic_vector(N - 1 downto 0);
+        SUM   : out std_logic_vector(N - 1 downto 0);
+        CARRY : out std_logic
         );
 end ADDER;
 
@@ -51,10 +51,10 @@ end component;
     
 begin
 
-C(0) <= CIN;
+CIN(0) <= CIN;
 G1: for I in 0 to N - 1 generate
-    U1: ONE_BIT_ADDER port map(A(I), B(I), C(I), S(I), C(I + 1));
+    U1: ONE_BIT_ADDER port map(CIN(I), A(I), B(I), SUM(I), CARRY(I + 1));
     end generate G1;
-Cout <= C(4);
+CARRY <= CARRY(N - 1);
 
 end Behavioral;
