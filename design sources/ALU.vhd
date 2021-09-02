@@ -1,3 +1,4 @@
+-- Signed Adder/Subtracter with Carry and Overflow
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
@@ -19,8 +20,8 @@ end ADDSUB;
 architecture Behavioral of ADDSUB is
 begin
 
-ADDSUB: process (A, B)
-    variable A_s, B_s, S_s: signed (N + 1 downto 0);
+ADDSUB: process(A, B)
+    variable A_s, B_s, S_s: signed(N + 1 downto 0);
 begin
     A_s := signed('0' & A(N - 1)& A);
     B_s := signed('0' & B(N - 1)& B);
@@ -36,6 +37,7 @@ end process;
 
 end Behavioral;
 
+-- Barrel Shifter
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
@@ -55,10 +57,10 @@ end BSHIFTER;
 architecture Behavioral of BSHIFTER is
 begin
 
-BSHIFTER: process (S, shamt, bshift_in)
-    variable shamt_n : NATURAL range 0 to 3;
-    variable X_u : UNSIGNED (3 downto 0);
-    variable X_s : SIGNED (3 downto 0);
+BSHIFTER: process(S, shamt, bshift_in)
+    variable shamt_n : natural range 0 to 3;
+    variable X_u     : unsigned(3 downto 0);
+    variable X_s     : signed(3 downto 0);
 begin
     shamt_n := to_integer(unsigned(shamt));
     X_u := unsigned (bshift_in);
@@ -70,7 +72,37 @@ begin
     when "11" => bshift_out <= std_logic_vector(ROTATE_RIGHT (X_s, shamt_n));
     when others => bshift_out <= "----";
     end case;
-    end process;
+end process;
+
+end Behavioral;
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity LOGICAL is
+    generic(
+            N : integer := 32
+            );
+    port(
+         OP     : in std_logic;
+         A      : in std_logic_vector(N - 1 downto 0);
+         B      : in std_logic_vector(N - 1 downto 0);
+         Result : out std_logic_vector(N - 1 downto 0)
+         );
+end LOGICAL;
+
+architecture Behavioral of LOGICAL is
+begin
+
+LOGICAL: process(A, B) is
+begin
+    case OP is
+    when '0' => Result <= A and B; 
+    when '1' => Result <= A xor B;
+    end case;
+end process;
+
 end Behavioral;
 
 library IEEE;
@@ -83,7 +115,7 @@ entity ALU is
             );
     port(
         ALUSrc     : in std_logic;
-        ALUControl : in std_logic_vector(3 downto 0);
+        ALUControl : in std_logic_vector(2 downto 0);
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0);
