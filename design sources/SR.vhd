@@ -6,9 +6,10 @@ entity SR is
         N : integer := 4
         );        
     port(
-        CLK       : in std_logic;
-        ALUFlags  : in std_logic_vector(N - 1 downto 0);
-        Flags     : out std_logic_vector(N - 1 downto 0)
+        CLK        : in std_logic;
+        FlagsWrite : in std_logic;
+        ALUFlags   : in std_logic_vector(N - 1 downto 0);
+        Flags      : out std_logic_vector(N - 1 downto 0)
         );
 end SR;
 
@@ -18,7 +19,9 @@ begin
 process(CLK) is
 begin
     if rising_edge(CLK) then
-        Flags <= ALUFlags;
+        if FlagsWrite = '1' then
+            Flags <= ALUFlags;
+        end if;
     end if;
 end process;
 end Behavioral;

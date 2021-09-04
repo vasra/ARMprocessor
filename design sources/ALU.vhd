@@ -42,15 +42,15 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity BSHIFTER is -- barrel shifter
+entity BSHIFTER is
     generic(
             N : integer := 32
             );
     port(
         S          : in std_logic_vector(1 downto 0);
-        shamt      : in std_logic_vector(1 downto 0);
-        bshift_in  : in std_logic_vector(3 downto 0);
-        bshift_out : out std_logic_vector(3 downto 0)
+        shamt      : in std_logic_vector(5 downto 0);
+        bshift_in  : in std_logic_vector(N - 1 downto 0);
+        bshift_out : out std_logic_vector(N - 1 downto 0)
         );
 end BSHIFTER;
 
@@ -58,9 +58,9 @@ architecture Behavioral of BSHIFTER is
 begin
 
 BSHIFTER: process(S, shamt, bshift_in)
-    variable shamt_n : natural range 0 to 3;
-    variable X_u     : unsigned(3 downto 0);
-    variable X_s     : signed(3 downto 0);
+    variable shamt_n : natural range 0 to 5;
+    variable X_u     : unsigned(N - 1 downto 0);
+    variable X_s     : signed(N - 1 downto 0);
 begin
     shamt_n := to_integer(unsigned(shamt));
     X_u := unsigned (bshift_in);
@@ -76,6 +76,7 @@ end process;
 
 end Behavioral;
 
+-- Unit that performs logical operations
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
@@ -114,7 +115,6 @@ entity ALU is
             N : integer := 32
             );
     port(
-        ALUSrc     : in std_logic;
         ALUControl : in std_logic_vector(2 downto 0);
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
@@ -124,6 +124,17 @@ entity ALU is
 end ALU;
 
 architecture Behavioral of ALU is
+
+component ADDSUB is
+    port(
+         SUBorADD : in std_logic;
+         A        : in std_logic_vector(N - 1 downto 0);
+         B        : in std_logic_vector(N - 1 downto 0);
+         S        : out std_logic_vector(N - 1 downto 0);
+         Cout     : out std_logic;
+         OV       : out std_logic
+         );
+end component ADDSUB;
 
 signal result : std_logic_vector(N - 1 downto 0);
 begin
