@@ -8,7 +8,7 @@ entity ROM is
         N : positive := 6
         );
     port(
-        PC : in std_logic_vector(N - 1 downto 0);
+        PC : in std_logic_vector(M - 1 downto 0);
         RD : out std_logic_vector(M - 1 downto 0)
         );
 end ROM;
@@ -50,6 +50,6 @@ architecture Behavioral of ROM is
 begin
 
 -- A[N-1:0] = PC[N+1:2]
-RD <= ROM(to_integer(unsigned(PC)));
+RD <= ROM(to_integer(unsigned(PC(N + 1 downto 2))));
   
 end Behavioral;

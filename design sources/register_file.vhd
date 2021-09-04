@@ -10,9 +10,9 @@ entity REGFILE is
     port(
         CLK       : in std_logic;
         WE        : in std_logic;
-        ADDR_W    : in std_logic_vector(N - 1 downto 0);
         ADDR_R1   : in std_logic_vector(N - 1 downto 0);
         ADDR_R2   : in std_logic_vector(N - 1 downto 0);
+        ADDR_W    : in std_logic_vector(N - 1 downto 0);
         DATA_IN   : in std_logic_vector(M - 1 downto 0);
         R15       : in std_logic_vector(M - 1 downto 0);
         DATA_OUT1 : out std_logic_vector(M - 1 downto 0);
