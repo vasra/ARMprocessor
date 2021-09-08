@@ -8,12 +8,11 @@ entity ADDSUB is
             N : integer := 32
             );
     port(
-         SUBorADD : in std_logic;
-         A        : in std_logic_vector(N - 1 downto 0);
-         B        : in std_logic_vector(N - 1 downto 0);
-         S        : out std_logic_vector(N - 1 downto 0);
-         Cout     : out std_logic;
-         OV       : out std_logic
+         ALUControl : in std_logic_vector(2 downto 0);
+         A          : in std_logic_vector(N - 1 downto 0);
+         B          : in std_logic_vector(N - 1 downto 0);
+         S          : out std_logic_vector(N - 1 downto 0);
+         ALUFlags   : out std_logic_vector(3 downto 0)
          );
 end ADDSUB;
 
@@ -29,14 +28,19 @@ begin
     --A_u := unsigned('0' & A(N - 1)& A);
     --B_u := unsigned('0' & B(N - 1)& B);
     
-    -- Check the last bit of ALUControl. If it is '1', then do subtraction. Else, do addition.
-    if (SUBorADD = '1') then S_s := A_s - B_s;
-    else S_s := A_s + B_s;
+    if    ALUControl = "001" then S_s := A_s - B_s;
+    elsif ALUControl = "000" then S_s := A_s + B_s;
     end if;
     
     S <= std_logic_vector(S_s(N - 1 downto 0));
-    OV <= S_s(N) xor S_s(N - 1);
-    Cout <= S_s(N + 1);
+    ALUFlags(0) <= S_s(N) xor S_s(N - 1);
+    ALUFlags(1) <= S_s(N + 1);
+    
+    if S_s = 0 then ALUFlags(2) <= '1';
+               else ALUFlags(2) <= '0'; end if;
+
+    if S_s < 0 then ALUFlags(3) <= '1';
+               else ALUFlags(3) <= '0'; end if;
 end process;
 
 end Behavioral;
@@ -46,22 +50,21 @@ library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity BSHIFTER is
+entity SHIFTER is
     generic(
             N : integer := 32
             );
     port(
-        S          : in std_logic;
         shamt      : in std_logic_vector(4 downto 0);
         bshift_in  : in std_logic_vector(N - 1 downto 0);
         bshift_out : out std_logic_vector(N - 1 downto 0)
         );
-end BSHIFTER;
+end SHIFTER;
 
-architecture Behavioral of BSHIFTER is
+architecture Behavioral of SHIFTER is
 begin
 
-BSHIFTER: process(S, shamt, bshift_in)
+SHIFTER: process(shamt, bshift_in)
     variable shamt_n : natural range 0 to 4;
     variable X_u     : unsigned(N - 1 downto 0);
     variable X_s     : signed(N - 1 downto 0);
@@ -69,48 +72,11 @@ begin
     shamt_n := to_integer(unsigned(shamt));
     X_u := unsigned (bshift_in);
     X_s := signed (bshift_in);
-    case S is
-        when '0' => bshift_out <= std_logic_vector(shift_left(X_u, shamt_n));   -- LSL
-        when '1' => bshift_out <= std_logic_vector(shift_right (X_s, shamt_n)); -- ASR
-        when others => bshift_out <= "----";
+    case bshift_in(6 downto 5) is -- check the "sh" field of the instruction to determine which shifting will take place
+        when "00" => bshift_out <= std_logic_vector(shift_left(X_u, shamt_n));   -- LSL
+        when "10" => bshift_out <= std_logic_vector(shift_right (X_s, shamt_n)); -- ASR
+        when others => bshift_out <= (others => '-');
     end case;
-end process;
-
-end Behavioral;
-
--- Unit that performs comparisons
-library IEEE;
-use IEEE.std_logic_1164.all;
-use IEEE.numeric_std.all;
-
-entity COMP is
-    generic(
-           N : positive := 32
-           );
-    port(
-        A      : in std_logic_vector(N - 1 downto 0);
-        B      : in std_logic_vector(N - 1 downto 0);
-        EQorNE : out std_logic;
-        GTorLE : out std_logic;
-        LTorGE : out std_logic
-        );
-end COMP;
-
-architecture Behavioral of COMP is
-begin
-
-COMP: process (A, B)
-    variable A_s : signed(N - 1 downto 0);
-    variable B_s : signed(N - 1 downto 0);
-begin
-    A_s := signed(A);
-    B_s := signed(B);
-    if (A_s = B_s) then EQorNE <= '1';
-                   else EQorNE <= '0'; end if;
-    if (A_s > B_s) then GTorLE <= '1';
-                   else GTorLE <= '0'; end if;
-    if (A_s < B_s) then LTorGE <= '1';
-                   else LTorGE <= '0'; end if;
 end process;
 
 end Behavioral;
@@ -125,26 +91,64 @@ entity LOGICAL is
             N : integer := 32
             );
     port(
-         OP     : in std_logic;
-         A      : in std_logic_vector(N - 1 downto 0);
-         B      : in std_logic_vector(N - 1 downto 0);
-         Result : out std_logic_vector(N - 1 downto 0)
+         ALUControl : in std_logic_vector(2 downto 0);
+         A          : in std_logic_vector(N - 1 downto 0);
+         B          : in std_logic_vector(N - 1 downto 0);
+         Result     : out std_logic_vector(N - 1 downto 0);
+         ALUFlags   : out std_logic_vector(3 downto 0)
          );
 end LOGICAL;
 
 architecture Behavioral of LOGICAL is
+
+signal xorsig : std_logic_vector(N - 1 downto 0);
+signal andsig : std_logic_vector(N - 1 downto 0);
+
 begin
 
-LOGICAL: process(A, B) is
-begin
-    case OP is
-        when '0' => Result <= A and B; 
-        when '1' => Result <= A xor B;
-    end case;
-end process;
+logical: for i in 0 to N - 1 generate
+    xorsig(i) <= A(i) xor B(i);
+    andsig(i) <= A(i) and B(i);
+end generate;
 
+Result <= xorsig when ALUControl = "010" else
+          andsig when ALUControl = "011";
+
+-- N flag
+ALUFlags(3) <= '1' when signed(xorsig) < 0 and ALUControl = "010" else
+               '0' when signed(andsig) < 0 and ALUControl = "011";
+         
+-- Z flag          
+ALUFlags(2) <= '1' when signed(xorsig) = 0 and ALUControl = "010" else
+               '0' when signed(andsig) = 0 and ALUControl = "011";
+        
+-- C, V flags are always zero when performing logical operations
+ALUFlags(1) <= '0';
+ALUFlags(0) <= '0';
+ 
 end Behavioral;
 
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+
+entity MOVER is
+    generic(
+           N : positive := 32
+           );
+    port(
+        ALUControl : in std_logic_vector(2 downto 0);
+        SrcA       : in std_logic_vector(N - 1 downto 0);
+        SrcB       : in std_logic_vector(N - 1 downto 0);
+        ALUResult  : out std_logic_vector(N - 1 downto 0)
+        );
+end MOVER;
+
+architecture Behavioral of MOVER is
+begin
+    ALUResult <= SrcA when ALUControl = "111";
+end Behavioral;
+    
 -- The ALU
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -168,72 +172,72 @@ architecture Behavioral of ALU is
 
 component ADDSUB is
     port(
-         SUBorADD : in std_logic;
-         A        : in std_logic_vector(N - 1 downto 0);
-         B        : in std_logic_vector(N - 1 downto 0);
-         S        : out std_logic_vector(N - 1 downto 0);
-         Cout     : out std_logic;
-         OV       : out std_logic
+         ALUControl : in std_logic_vector(2 downto 0);
+         A          : in std_logic_vector(N - 1 downto 0);
+         B          : in std_logic_vector(N - 1 downto 0);
+         S          : out std_logic_vector(N - 1 downto 0);
+         ALUFlags   : out std_logic_vector(3 downto 0)
          );
 end component ADDSUB;
 
-component BSHIFTER is
+component SHIFTER is
     port(
-        S          : in std_logic;
         shamt      : in std_logic_vector(4 downto 0);
         bshift_in  : in std_logic_vector(N - 1 downto 0);
         bshift_out : out std_logic_vector(N - 1 downto 0)
         );
-end component BSHIFTER;
-
-component COMP is
-    port(
-        A      : in std_logic_vector(N - 1 downto 0);
-        B      : in std_logic_vector(N - 1 downto 0);
-        EQorNE : out std_logic;
-        GTorLE : out std_logic;
-        LTorGE : out std_logic
-        );
-end component COMP;
+end component SHIFTER;
 
 component LOGICAL is
     port(
-         OP     : in std_logic;
-         A      : in std_logic_vector(N - 1 downto 0);
-         B      : in std_logic_vector(N - 1 downto 0);
-         Result : out std_logic_vector(N - 1 downto 0)
+         ALUControl : in std_logic_vector(2 downto 0);
+         A          : in std_logic_vector(N - 1 downto 0);
+         B          : in std_logic_vector(N - 1 downto 0);
+         Result     : out std_logic_vector(N - 1 downto 0);
+         ALUFlags   : out std_logic_vector(3 downto 0)
          );
 end component LOGICAL;
 
-signal AddSubResult  : std_logic_vector(N - 1 downto 0);
-signal BShiftResult  : std_logic_vector(N - 1 downto 0);
-signal LogicalResult : std_logic_vector(N - 1 downto 0);
-signal Carry         : std_logic;
-signal Overflow      : std_logic;
-signal EQorNESig     : std_logic;
-signal GTorLESig     : std_logic;
-signal LTorGESig     : std_logic;
+component MOVER is
+    port(
+        ALUControl : in std_logic_vector(2 downto 0);
+        SrcA       : in std_logic_vector(N - 1 downto 0);
+        SrcB       : in std_logic_vector(N - 1 downto 0);
+        ALUResult  : out std_logic_vector(N - 1 downto 0)
+        );
+end component MOVER;
+
+signal AddSubResult        : std_logic_vector(N - 1 downto 0);
+signal BShiftResult        : std_logic_vector(N - 1 downto 0);
+signal LogicalResult       : std_logic_vector(N - 1 downto 0);
+signal MovResult           : std_logic_vector(N - 1 downto 0);
+signal Carry               : std_logic;
+signal Overflow            : std_logic;
+signal ALUFlagsSigAddSub   : std_logic_vector(3 downto 0);
+signal ALUFlagsSigLogical  : std_logic_vector(3 downto 0);
 
 begin
 
-ADDER_SUBBER  : ADDSUB   port map(ALUControl(0), SrcA, SrcB, AddSubResult, Carry, Overflow);
-BARRELSHIFTER : BSHIFTER port map(ALUControl(0), Shamt, SrcA, BShiftResult);
-COMPARATOR    : COMP     port map(SrcA, SrcB, EQorNESig, GTorLESig, LTorGESig);
-LOGICAL_UNIT  : LOGICAL  port map(ALUControl(0), SrcA, SrcB, LogicalResult);
-
+ADDER_SUBBER  : ADDSUB   port map(ALUControl, SrcA, SrcB, AddSubResult, ALUFlagsSigAddSub);
+SHIFTER_COMP  : SHIFTER port map(Shamt, SrcA, BShiftResult);
+LOGICAL_UNIT  : LOGICAL  port map(ALUControl, SrcA, SrcB, LogicalResult, ALUFlagsSigLogical);
+MOV           : MOVER port map(ALUControl, SrcA, SrcB, MovResult);
 
 process(SrcA, SrcB, ALUControl) is
 begin
     if ALUControl = "000" or ALUControl = "001" then -- add or subtract
         ALUResult <= AddSubResult;
-        ALUFlags(1) <= Carry;
-        ALUFlags(0) <= Overflow; 
+        ALUFlags <= ALUFlagsSigAddSub;
     elsif ALUControl = "010" or ALUControl = "011" then -- logical operation
         ALUResult <= LogicalResult;
-        ALUFlags(0) <= '0';
-        ALUFlags(1) <= '0';
+        ALUFlags  <= ALUFlagsSigLogical;
     elsif ALUControl = "100" or ALUControl = "101" then -- logical or arithmetic shift
         ALUResult <= BShiftResult;
+    -- TODO
+    elsif ALUControl = "110" then -- comparison
+        ALUResult <= AddSubResult;
+        ALUFlags(1) <= Carry;
+        ALUFlags(0) <= Overflow;
     end if;    
 end process;
         
