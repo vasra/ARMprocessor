@@ -2,32 +2,38 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity extend_tb is
+entity EXTEND_TB is
 --  Port ( );
-end extend_tb;
+end EXTEND_TB;
 
-architecture Behavioral of extend_tb is
+architecture Behavioral of EXTEND_TB is
 
-component extend is
+component EXTEND is
     port(
-        ImmSrc      : in std_logic;
-        instruction : in std_logic_vector(31 downto 0);
-        ExtImm      : out std_logic_vector(31 downto 0)
+        IMMSRC  : in std_logic;
+        DATA_IN : in std_logic_vector(23 downto 0);
+        EXTIMM  : out std_logic_vector(31 downto 0)
         );
-end component extend;
+end component EXTEND;
 
-signal ImmSrc      : std_logic;
-signal instruction : std_logic_vector(31 downto 0);
-signal ExtImm      : std_logic_vector(31 downto 0);
+signal IMMSRC  : std_logic;
+signal DATA_IN : std_logic_vector(23 downto 0);
+signal EXTIMM  : std_logic_vector(31 downto 0);
+
+constant CLK_PERIOD : time := 10 ns;
 
 begin
 
-uut: extend port map(ImmSrc, instruction, ExtImm);
+uut : EXTEND port map(IMMSRC, DATA_IN, EXTIMM);
 
-test: process is
+process is
 begin
-    ImmSrc <= '0'; instruction <= (others => '1'); wait for 20 ns;
-    ImmSrc <= '1'; instruction <= (31 downto 26 => '0') & "10101010101010101010101010"; wait for 20 ns;
-    ImmSrc <= '1'; instruction <= (31 downto 26 => '0') & "00001010101010101010101010"; wait for 20 ns;
+    -- extend a positive number
+    IMMSRC <= '1'; DATA_IN <= ('0', others => '1'); wait for 1 * CLK_PERIOD;
+    IMMSRC <= '0'; DATA_IN <= ('0', others => '1'); wait for 1 * CLK_PERIOD;
+    
+    -- extend a negative number
+    IMMSRC <= '1'; DATA_IN <= (others => '1'); wait for 1 * CLK_PERIOD;
+    IMMSRC <= '0'; DATA_IN <= (others => '1'); wait for 1 * CLK_PERIOD;
 end process;
 end Behavioral;
