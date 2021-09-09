@@ -23,10 +23,8 @@ fetch: process(CLK) is
 begin
 
 if rising_edge(CLK) then
-    if RESET = '1' then
-        PC_out <= (others => '0');
-    else
-        PC_out <= PCN;
+    if RESET = '1' then PC_out <= (others => '0');
+    elsif WE = '1' then PC_out <= PCN;
     end if;
 end if;
 
