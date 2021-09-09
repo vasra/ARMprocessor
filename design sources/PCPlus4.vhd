@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity FOUR_BYTE_ADDER is
+entity PCPLUS4 is
     generic(
            N : integer := 32
            );
@@ -10,9 +10,9 @@ entity FOUR_BYTE_ADDER is
         PC      : in std_logic_vector (N - 1 downto 0);
         PCPlus4 : out std_logic_vector (N - 1 downto 0)
         );
-end FOUR_BYTE_ADDER;
+end PCPLUS4;
 
-architecture Behavioral of FOUR_BYTE_ADDER is
+architecture Behavioral of PCPLUS4 is
 
 begin
 
