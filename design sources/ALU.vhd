@@ -208,7 +208,7 @@ component MOVER is
 end component MOVER;
 
 signal AddSubResult        : std_logic_vector(N - 1 downto 0);
-signal BShiftResult        : std_logic_vector(N - 1 downto 0);
+signal ShiftResult        : std_logic_vector(N - 1 downto 0);
 signal LogicalResult       : std_logic_vector(N - 1 downto 0);
 signal MovResult           : std_logic_vector(N - 1 downto 0);
 signal Carry               : std_logic;
@@ -219,7 +219,7 @@ signal ALUFlagsSigLogical  : std_logic_vector(3 downto 0);
 begin
 
 ADDER_SUBBER  : ADDSUB   port map(ALUControl, SrcA, SrcB, AddSubResult, ALUFlagsSigAddSub);
-SHIFTER_COMP  : SHIFTER port map(Shamt, SrcA, BShiftResult);
+SHIFTER_COMP  : SHIFTER port map(Shamt, SrcA, ShiftResult);
 LOGICAL_UNIT  : LOGICAL  port map(ALUControl, SrcA, SrcB, LogicalResult, ALUFlagsSigLogical);
 MOV           : MOVER port map(ALUControl, SrcA, SrcB, MovResult);
 
@@ -228,14 +228,20 @@ begin
     if ALUControl = "000" or ALUControl = "001" then -- add or subtract
         ALUResult <= AddSubResult;
         ALUFlags <= ALUFlagsSigAddSub;
-    elsif ALUControl = "010" or ALUControl = "011" then -- logical operation
+    elsif ALUControl = "010" or ALUControl = "011" then -- logical operation (AND/XOR)
         ALUResult <= LogicalResult;
         ALUFlags  <= ALUFlagsSigLogical;
-    elsif ALUControl = "100" or ALUControl = "101" then -- logical or arithmetic shift
-        ALUResult <= BShiftResult;
+    elsif ALUControl = "100" then -- logical or arithmetic shift (LSL, ASR)
+        ALUResult <= ShiftResult;
     -- TODO
-    elsif ALUControl = "110" then -- comparison
+	elsif ALUControl = "101" then -- MOV operation
+		ALUResult <= SrcA;
+	elsif ALUControl = "110" then -- MVN operation
+		ALUResult <= not(SrcA);
+    elsif ALUControl = "111" then -- comparison
         ALUResult <= AddSubResult;
+		if signed(AddSubResult) < 0 then ALUFlags(3) <= '1'; end if;
+		if signed(AddSubResult) = 0 then ALUFlags(2) <= '1'; end if;
         ALUFlags(1) <= Carry;
         ALUFlags(0) <= Overflow;
     end if;    
