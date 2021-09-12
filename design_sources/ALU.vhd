@@ -167,7 +167,7 @@ entity ALU is
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        Shift_type : in std_logic_vector(1 downto 0);
+        ShiftType  : in std_logic_vector(1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
@@ -223,7 +223,7 @@ signal ALUFlagsSigLogical : std_logic_vector(3 downto 0);
 begin
 
 ADDER_SUBBER  : ADDSUB   port map(ALUControl, SrcA, SrcB, AddSubResult, ALUFlagsSigAddSub);
-SHIFTER_COMP  : SHIFTER  port map(shift_type, Shamt, SrcA, ShiftResult);
+SHIFTER_COMP  : SHIFTER  port map(ShiftType, Shamt, SrcA, ShiftResult);
 LOGICAL_UNIT  : LOGICAL  port map(ALUControl, SrcA, SrcB, LogicalResult, ALUFlagsSigLogical);
 MOV           : MOVER    port map(ALUControl, SrcA, SrcB, MovResult);
 

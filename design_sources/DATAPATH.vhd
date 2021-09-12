@@ -18,17 +18,18 @@ entity DATAPATH is
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
         ImmSrc      : in std_logic;
-        ReadData    : in STD_LOGIC_VECTOR(N - 1 downto 0);
+        ReadData    : in std_logic_vector(N - 1 downto 0);
         RegWrite    : in std_logic;
         Instruction : in std_logic_vector(N - 1 downto 0);
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
+        Shamt       : in std_logic_vector(4 downto 0);
+        ShiftType   : in std_logic_vector(1 downto 0);
         
         -- outputs
         ALUFlags : out std_logic_vector(3 downto 0);
         
         -- buffers
-        PCWE      : buffer std_logic;
         PCin      : buffer std_logic_vector(N - 1 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
         WriteData : buffer std_logic_vector(N - 1 downto 0)
@@ -78,12 +79,13 @@ end component PCPLUS4;
 
 component EXTEND is
     generic(
-           WIDTH_IN  : positive := 24;
-           WIDTH_OUT : positive := 32
+           WIDTH_IN_z : positive := 12;
+           WIDTH_IN_s : positive := 24;
+           WIDTH_OUT  : positive := 32
            );
     port(
         IMMSRC  : in std_logic;
-        DATA_IN : in std_logic_vector(WIDTH_IN - 1 downto 0);
+        DATA_IN : in std_logic_vector(WIDTH_IN_s - 1 downto 0);
         EXTIMM  : out std_logic_vector(WIDTH_OUT - 1 downto 0)
         );
 end component EXTEND;
@@ -94,6 +96,8 @@ component ALU is
         ALUControl : in std_logic_vector(2 downto 0);
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
+        Shamt      : in std_logic_vector(4 downto 0);
+        ShiftType  : in std_logic_vector(1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
@@ -153,7 +157,7 @@ signal MemMuxResult : std_logic_vector(N - 1 downto 0);
 begin
 
 -- step 1
-PROGRAM_COUNTER    : PC port map(CLK, RESET, PCWE, PCN, PC_signal);
+PROGRAM_COUNTER    : PC port map(CLK, RESET, PCWrite, PCN, PC_signal);
 INSTRUCTION_MEMORY : ROM port map(PC_signal, Instr);
 INC4               : PCPLUS4 port map(PC_signal, PCPlus4Sig);
 
@@ -170,7 +174,7 @@ EXTEND_UNIT     : EXTEND port map(ImmSrc, Instr(23 downto 0), ExtImm);
 
 -- step 3
 ALUMUX   : MUX2TO1 port map(ALUSrc, RD2, ExtImm, SrcB);
-ALU_COMP : ALU port map(ALUControl, RD1, SrcB, ALUResultSig, ALUFlagsSig);
+ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ShiftType, ALUResultSig, ALUFlagsSig);
 STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 
 -- step 4
