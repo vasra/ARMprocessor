@@ -14,7 +14,7 @@ entity ROM is
 end ROM;
 
 architecture Behavioral of ROM is
-    type ROM_array is array (0 to 2 * N - 1) of std_logic_vector(M - 1 downto 0);
+    type ROM_array is array (0 to 2 ** N - 1) of std_logic_vector(M - 1 downto 0);
      constant ROM : ROM_array := (
        -- ALU immediate instructions
        "111000101001--------0000--------", -- ADD(S)-I
