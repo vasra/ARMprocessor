@@ -92,9 +92,9 @@ entity LOGICAL is
             );
     port(
          ALUControl : in std_logic_vector(2 downto 0);
-         SrcA          : in std_logic_vector(N - 1 downto 0);
-         SrcB          : in std_logic_vector(N - 1 downto 0);
-         ALUResult     : out std_logic_vector(N - 1 downto 0);
+         SrcA       : in std_logic_vector(N - 1 downto 0);
+         SrcB       : in std_logic_vector(N - 1 downto 0);
+         ALUResult  : out std_logic_vector(N - 1 downto 0);
          ALUFlags   : out std_logic_vector(3 downto 0)
          );
 end LOGICAL;
@@ -115,12 +115,16 @@ ALUResult <= xorsig when ALUControl = "010" else
              andsig when ALUControl = "011";
 
 -- N flag
-ALUFlags(3) <= '1' when signed(xorsig) < 0 and ALUControl = "010" else
-               '0' when signed(andsig) < 0 and ALUControl = "011";
+ALUFlags(3) <= '1' when signed(xorsig) < 0  and ALUControl = "010" else
+               '0' when signed(xorsig) >= 0 and ALUControl = "010" else
+               '1' when signed(andsig) < 0  and ALUControl = "011" else
+               '0' when signed(andsig) >= 0 and ALUControl = "011";
          
 -- Z flag          
-ALUFlags(2) <= '1' when signed(xorsig) = 0 and ALUControl = "010" else
-               '0' when signed(andsig) = 0 and ALUControl = "011";
+ALUFlags(2) <= '1' when signed(xorsig) = 0  and ALUControl = "010" else
+               '0' when signed(xorsig) /= 0 and ALUControl = "010" else
+               '1' when signed(andsig) = 0  and ALUControl = "011" else
+               '0' when signed(andsig) /= 0 and ALUControl = "011";
         
 -- C, V flags are always zero when performing logical operations
 ALUFlags(1) <= '0';

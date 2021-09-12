@@ -50,13 +50,13 @@ begin
 --						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
 --						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
 	
-    -- AND test	
+--    -- AND test	
 --	ALUControl <= "011"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
 --						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
 --						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
 						 
 --    -- LSL test	
-	ALUControl <= "100"; Shift_type <= "10"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for 1 * CLK_PERIOD;
+    ALUControl <= "100"; Shift_type <= "00"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for 1 * CLK_PERIOD;
 	
 --	-- MOV test
 --	ALUControl <= "101"; SrcA <= x"000000FF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
@@ -65,7 +65,7 @@ begin
 --	ALUControl <= "110"; SrcA <= x"000000FF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
 	
 --	-- CMP test
---	ALUControl <= "111"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait for 1 * CLK_PERIOD;
+--	ALUControl <= "111"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait for 2 * CLK_PERIOD;
 --						 SrcA <= x"0000000F"; SrcB <= x"000000F0"; wait for 1 * CLK_PERIOD;
 --						 SrcA <= x"0000000F"; SrcB <= x"0000000F"; wait for 1 * CLK_PERIOD;
 end process;  
