@@ -22,22 +22,50 @@ begin
 Decode : process is
 begin
     case Op is
-        when "01" =>
-            case Funct is
-                when "011001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "00"; MemToReg <= '1'; NoWrite_In <= '0';
-                when "001001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '1'; NoWrite_In <= '0';
-                when "011000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "00"; MemToReg <= '-'; NoWrite_In <= '0';
-                when "010000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '-'; NoWrite_In <= '0';
-            end case;
-        when "10" =>
-            case Funct is
-                when "10----" => RegSrc <= "-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "00"; MemToReg <= '0'; NoWrite_In <= '0';
-            end case;
-
---            case Funct is
---                when "10110-" | "10010-" | "110101" | "10000-" | "11100-" =>
---                    RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "00"; MemToReg   <= '0'; NoWrite_In <= '0';
---            end case;
-    end case;
+		-- DP instructions
+		when "00" =>
+		case Funct is
+		-- All DP Imm instructions, besides CMP
+			when "10100-" | "10010-" | "10000-" | "11100-" =>
+				RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; MemToReg <= '0'; NoWrite_In <= '0';
+				if    Funct = "10100-" then ALUControl <= "00";
+				elsif Funct = "10010-" then ALUControl <= "01";
+				elsif Funct = "10000-" then ALUControl <= "10";
+				elsif Funct = "11100-" then ALUControl <= "11";
+				else ALUControl <= "--";
+				end if;
+			-- CMP Imm
+			when "110101" =>
+				RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '-'; NoWrite_In <= '1';
+			-- All DP Reg instructions, besides CMP
+			when "00100-" | "00010-" | "00000-" | "01100-" =>
+				RegSrc <= "00"; ALUSrc <= '0'; ImmSrc <= '-'; MemToReg <= '0'; NoWrite_In <= '0';
+				if    Funct = "00100-" then ALUControl <= "00";
+				elsif Funct = "00010-" then ALUControl <= "01";
+				elsif Funct = "00000-" then ALUControl <= "10";
+				elsif Funct = "01100-" then ALUControl <= "11";
+				else ALUControl <= "--";
+				end if;
+			-- CMP Reg
+			when "010101" =>
+				RegSrc <= "00"; ALUSrc <= '0'; ImmSrc <= '-'; ALUControl <= "01"; MemToReg <= '-'; NoWrite_In <= '1';
+		end case;
+		-- Mem Imm instructions
+		when "01" =>
+		case Funct is
+			when "011001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "00"; MemToReg <= '1'; NoWrite_In <= '0';
+			when "001001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '1'; NoWrite_In <= '0';
+			when "011000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "00"; MemToReg <= '-'; NoWrite_In <= '0';
+			when "010000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '-'; NoWrite_In <= '0';
+		end case;
+		-- Branching instructions
+		when "10" =>
+		case Funct is
+			when "10----" => RegSrc <= "-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "00"; MemToReg <= '0'; NoWrite_In <= '0';
+		end case;
+		-- Other cases
+		when others =>
+			RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "--"; MemToReg <= '-'; NoWrite_In <= '-';
+	end case;
 end process;
 end Behavioral;
