@@ -30,9 +30,11 @@ entity DATAPATH is
         ALUFlags : out std_logic_vector(3 downto 0);
         
         -- buffers
-        PCin      : buffer std_logic_vector(N - 1 downto 0);
+        PC        : buffer std_logic_vector(N - 1 downto 0);
+        Instr     : out std_logic_vector(N - 1 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
-        WriteData : buffer std_logic_vector(N - 1 downto 0)
+        WriteData : buffer std_logic_vector(N - 1 downto 0);
+        Result    : out std_logic_vector(N - 1 downto 0)
         );
 end DATAPATH;
 
