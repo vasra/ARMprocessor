@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity WELogic is
+entity WELOGIC is
 	port(
 		Op            : in std_logic_vector(1 downto 0);
 		SL            : in std_logic;
@@ -11,9 +11,9 @@ entity WELogic is
 		FlagsWrite_In : out std_logic;
 		MemWrite_In   : out std_logic
 		);
-end WELogic;
+end WELOGIC;
 
-architecture Behavioral of WELogic is
+architecture Behavioral of WELOGIC is
 begin
 
 process is
@@ -29,9 +29,11 @@ begin
 		FlagsWrite_In <= '0';
 		if    SL = '0' then RegWrite_In <= '1'; MemWrite_In <= '0';
 		elsif SL = '1' then RegWrite_In <= '0'; MemWrite_In <= '1';
+		end if;
 	when "10" =>
 		RegWrite_In <= '0'; FlagsWrite_In <= '0'; MemWrite_In <= '0';
 	when others =>
 		RegWrite_In <= '-'; FlagsWrite_In <= '-'; MemWrite_In <= '-';
 	end case;
+end process;
 end Behavioral;

@@ -2,15 +2,18 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity CONDLogic is
+entity CONDLOGIC is
     port(
         Cond  : in std_logic_vector(3 downto 0);
         Flags : in std_logic_vector(3 downto 0);
         CondEx_In : out std_logic
         );
-end CONDLogic;
+end CONDLOGIC;
 
-architecture Behavioral of CONDLogic is
+architecture Behavioral of CONDLOGIC is
+begin
+
+process is
 begin
     case Cond is
         when "0000" => CondEx_In <= Flags(2);
@@ -30,4 +33,5 @@ begin
         when "0000" => CondEx_In <= Flags(2);
         when "0000" => CondEx_In <= Flags(2);
     end case;
+end process;
 end Behavioral;
