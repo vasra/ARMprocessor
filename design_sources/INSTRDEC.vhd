@@ -16,7 +16,6 @@ entity INSTRDEC is
 end INSTRDEC;
 
 architecture Behavioral of INSTRDEC is
-
 begin
 
 Decode : process is
@@ -49,6 +48,8 @@ begin
 			-- CMP Reg
 			when "010101" =>
 				RegSrc <= "00"; ALUSrc <= '0'; ImmSrc <= '-'; ALUControl <= "01"; MemToReg <= '-'; NoWrite_In <= '1';
+			when others =>
+			    RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "--"; MemToReg <= '-'; NoWrite_In <= '-';
 		end case;
 		-- Mem Imm instructions
 		when "01" =>
@@ -57,11 +58,13 @@ begin
 			when "001001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '1'; NoWrite_In <= '0';
 			when "011000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "00"; MemToReg <= '-'; NoWrite_In <= '0';
 			when "010000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "01"; MemToReg <= '-'; NoWrite_In <= '0';
+			when others   => RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "--"; MemToReg <= '-'; NoWrite_In <= '-';
 		end case;
 		-- Branching instructions
 		when "10" =>
 		case Funct is
 			when "10----" => RegSrc <= "-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "00"; MemToReg <= '0'; NoWrite_In <= '0';
+			when others   => RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "--"; MemToReg <= '-'; NoWrite_In <= '-';
 		end case;
 		-- Other cases
 		when others =>

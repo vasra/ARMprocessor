@@ -4,8 +4,8 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity CONDLOGIC is
     port(
-        Cond  : in std_logic_vector(3 downto 0);
-        Flags : in std_logic_vector(3 downto 0);
+        Cond      : in std_logic_vector(3 downto 0);
+        Flags     : in std_logic_vector(3 downto 0);
         CondEx_In : out std_logic
         );
 end CONDLOGIC;
@@ -24,14 +24,14 @@ begin
         when "0101" => CondEx_In <= not(Flags(3));
         when "0110" => CondEx_In <= Flags(0);
         when "0111" => CondEx_In <= not(Flags(0));
-        when "1000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
-        when "0000" => CondEx_In <= Flags(2);
+        when "1000" => CondEx_In <= Flags(2) and Flags(1);
+        when "1001" => CondEx_In <= Flags(2) or (not(Flags(1)));
+        when "1010" => CondEx_In <= Flags(3) xnor Flags(0);
+        when "1011" => CondEx_In <= not(Flags(3) xnor Flags(0));
+        when "1100" => CondEx_In <= not(Flags(2)) and (Flags(3) xnor Flags(0));
+        when "1101" => CondEx_In <= Flags(2) or (not(Flags(3) xnor Flags(0)));
+        when "1110" => CondEx_In <= '1';
+        when "1111" => CondEx_In <= '1';
     end case;
 end process;
 end Behavioral;

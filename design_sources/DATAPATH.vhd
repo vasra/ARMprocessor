@@ -12,7 +12,7 @@ entity DATAPATH is
         CLK         : in std_logic;
         RESET       : in std_logic;
         PCWrite     : in std_logic;
-        PCsrc       : in std_logic;
+        PCSrc       : in std_logic;
         RegSrc      : in std_logic_vector(2 downto 0);
         ALUSrc      : in std_logic;
         MemtoReg    : in std_logic;
@@ -23,18 +23,14 @@ entity DATAPATH is
         Instruction : in std_logic_vector(N - 1 downto 0);
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
-        Shamt       : in std_logic_vector(4 downto 0);
-        ShiftType   : in std_logic_vector(1 downto 0);
-        
+
         -- outputs
         ALUFlags : out std_logic_vector(3 downto 0);
         
         -- buffers
-        PC        : buffer std_logic_vector(N - 1 downto 0);
-        Instr     : out std_logic_vector(N - 1 downto 0);
+        PCBuf     : buffer std_logic_vector(N - 1 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
-        WriteData : buffer std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0)
+        WriteData : buffer std_logic_vector(N - 1 downto 0)
         );
 end DATAPATH;
 
@@ -176,7 +172,7 @@ EXTEND_UNIT     : EXTEND port map(ImmSrc, Instr(23 downto 0), ExtImm);
 
 -- step 3
 ALUMUX   : MUX2TO1 port map(ALUSrc, RD2, ExtImm, SrcB);
-ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ShiftType, ALUResultSig, ALUFlagsSig);
+ALU_COMP : ALU port map(ALUControl, RD1, SrcB, ALUResultSig, ALUFlagsSig);
 STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 
 -- step 4

@@ -8,6 +8,8 @@ entity CONTROLUNIT is
            );
     port(
         -- inputs
+        CLK        : in std_logic;
+        RESET      : in std_logic;
         Instr      : in std_logic_vector(N - 1 downto 0);
         Flags      : in std_logic_vector(3 downto 0);
 
@@ -79,7 +81,7 @@ begin
 
 DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig);
 WLOGIC      : WELOGIC   port map(Instr(27 downto 26), Instr(20), NoWrite_InSig, RegWrite_InSig, FlagsWrite_InSig, MemWrite_InSig);
-PC          : PCLOGIC   port map(Instr(15 downto 12), Instr(27), RegWrite_InSig, MemWrite_InSig, PCSrc_InSig);
+PC          : PCLOGIC   port map(Instr(15 downto 12), Instr(27), RegWrite_InSig, PCSrc_InSig);
 CONDITIONAL : CONDLOGIC port map(Instr(31 downto 28), Flags, CondEx_InSig);
 
 MemWrite   <= CondEx_InSig and MemWrite_InSig;
