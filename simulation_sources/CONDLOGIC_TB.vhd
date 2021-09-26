@@ -23,7 +23,26 @@ constant CLK_PERIOD : time := 10 ns;
 
 begin
 
+uut : CONDLOGIC port map(Cond, Flags, CondEx_In);
+
 test : process is
 begin
+    Flags <= "0000";
+    Cond  <= "0000"; wait for CLK_PERIOD;
+    Cond  <= "0001"; wait for CLK_PERIOD;
+    Cond  <= "0010"; wait for CLK_PERIOD;
+    Cond  <= "0011"; wait for CLK_PERIOD;
+    Cond  <= "0100"; wait for CLK_PERIOD;
+    Cond  <= "0101"; wait for CLK_PERIOD;
+    Cond  <= "0110"; wait for CLK_PERIOD;
+    Cond  <= "0111"; wait for CLK_PERIOD;
+    Cond  <= "1000"; wait for CLK_PERIOD;
+    Cond  <= "1001"; wait for CLK_PERIOD;
+    Cond  <= "1010"; wait for CLK_PERIOD;
+    Cond  <= "1011"; wait for CLK_PERIOD;
+    Cond  <= "1100"; wait for CLK_PERIOD;
+    Cond  <= "1101"; wait for CLK_PERIOD;
+    Cond  <= "1110"; wait for CLK_PERIOD;
+    Cond  <= "1111"; wait for CLK_PERIOD;
 end process;
 end Behavioral;

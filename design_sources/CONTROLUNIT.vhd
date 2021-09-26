@@ -32,6 +32,7 @@ component INSTRDEC is
     port(
         Op         : in std_logic_vector(1 downto 0);
         Funct      : in std_logic_vector(5 downto 0);
+        Instr11to4 : in std_logic_vector(7 downto 0);
         RegSrc     : out std_logic_vector(1 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
@@ -55,9 +56,8 @@ end component WELOGIC;
 component PCLOGIC is
     port(
         Rd          : in std_logic_vector(3 downto 0);
-        Op          : in std_logic;
+        Op1         : in std_logic;
         RegWrite_In : in std_logic;
-        --CondEx_In   : in std_logic;
         PCSrc_In    : out std_logic
         );
 end component PCLOGIC;
@@ -79,7 +79,7 @@ signal RegWrite_InSig   : std_logic;
 
 begin
 
-DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig);
+DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), Instr(11 downto 4), RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig);
 WLOGIC      : WELOGIC   port map(Instr(27 downto 26), Instr(20), NoWrite_InSig, RegWrite_InSig, FlagsWrite_InSig, MemWrite_InSig);
 PC          : PCLOGIC   port map(Instr(15 downto 12), Instr(27), RegWrite_InSig, PCSrc_InSig);
 CONDITIONAL : CONDLOGIC port map(Instr(31 downto 28), Flags, CondEx_InSig);

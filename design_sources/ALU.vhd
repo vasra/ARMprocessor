@@ -54,28 +54,32 @@ entity SHIFTER is
             N : integer := 32
             );
     port(
-        ShiftType : in std_logic_vector(1 downto 0);
-        Shamt     : in std_logic_vector(4 downto 0);
-        SrcA      : in std_logic_vector(N - 1 downto 0);
-        ALUResult : out std_logic_vector(N - 1 downto 0)
+        ALUControl : in std_logic_vector(2 downto 0);
+        Shamt      : in std_logic_vector(4 downto 0);
+        SrcA       : in std_logic_vector(N - 1 downto 0);
+        ALUResult  : out std_logic_vector(N - 1 downto 0)
         );
 end SHIFTER;
 
 architecture Behavioral of SHIFTER is
+
 begin
 
-SHIFTER: process(ShiftType, Shamt, SrcA)
+SHIFTER: process(ALUControl, Shamt, SrcA)
     variable shamt_n : natural range 0 to N - 1;
     variable X_u     : unsigned(N - 1 downto 0);
     variable X_s     : signed(N - 1 downto 0);
 begin
-    shamt_n := to_integer(unsigned(shamt));
+    shamt_n := to_integer(unsigned(Shamt));
     X_u := unsigned(SrcA);
     X_s := signed(SrcA);
-    case ShiftType is -- check the "sh" field of the instruction to determine which shifting will take place
-        when "00" => ALUResult <= std_logic_vector(shift_left(X_u, shamt_n));   -- LSL
-        when "10" => ALUResult <= std_logic_vector(shift_right (X_s, shamt_n)); -- ASR
-        when others => ALUResult <= (others => '-');
+    case ALUControl is
+        when "110" =>
+            ALUResult <= std_logic_vector(shift_left(X_u, shamt_n));   -- LSL
+        when "111" =>
+            ALUResult <= std_logic_vector(shift_right (X_s, shamt_n)); -- ASR
+        when others =>
+            ALUResult <= (others => '-');
     end case;
 end process;
 
@@ -142,7 +146,6 @@ entity MOVER is
            );
     port(
         ALUControl : in std_logic_vector(2 downto 0);
-        SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0)
         );
@@ -150,7 +153,7 @@ end MOVER;
 
 architecture Behavioral of MOVER is
 begin
-    ALUResult <= SrcA when ALUControl = "111";
+    ALUResult <= SrcB when ALUControl = "100" else not(SrcB) when ALUControl = "101";
 end Behavioral;
     
 -- The ALU
@@ -167,7 +170,6 @@ entity ALU is
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        ShiftType  : in std_logic_vector(1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
@@ -187,10 +189,10 @@ end component ADDSUB;
 
 component SHIFTER is
     port(
-        ShiftType : in std_logic_vector(1 downto 0);
-        Shamt     : in std_logic_vector(4 downto 0);
-        SrcA      : in std_logic_vector(N - 1 downto 0);
-        ALUResult : out std_logic_vector(N - 1 downto 0)
+        ALUControl : in std_logic_vector(2 downto 0);
+        Shamt      : in std_logic_vector(4 downto 0);
+        SrcA       : in std_logic_vector(N - 1 downto 0);
+        ALUResult  : out std_logic_vector(N - 1 downto 0)
         );
 end component SHIFTER;
 
@@ -207,7 +209,6 @@ end component LOGICAL;
 component MOVER is
     port(
         ALUControl : in std_logic_vector(2 downto 0);
-        SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0)
         );
@@ -223,26 +224,24 @@ signal ALUFlagsSigLogical : std_logic_vector(3 downto 0);
 begin
 
 ADDER_SUBBER  : ADDSUB   port map(ALUControl, SrcA, SrcB, AddSubResult, ALUFlagsSigAddSub);
-SHIFTER_COMP  : SHIFTER  port map(ShiftType, Shamt, SrcA, ShiftResult);
-LOGICAL_UNIT  : LOGICAL  port map(ALUControl, SrcA, SrcB, LogicalResult, ALUFlagsSigLogical);
-MOV           : MOVER    port map(ALUControl, SrcA, SrcB, MovResult);
+SHIFT         : SHIFTER  port map(ALUControl, Shamt, SrcA, ShiftResult);
+LOGIC         : LOGICAL  port map(ALUControl, SrcA, SrcB, LogicalResult, ALUFlagsSigLogical);
+MOVE          : MOVER    port map(ALUControl, SrcB, MovResult);
 
 process(SrcA, SrcB, ALUControl) is
 begin
-    if ALUControl = "000" or ALUControl = "001" then -- add or subtract
+    if ALUControl = "000" or ALUControl = "001" then -- ADD/SUB
         ALUResult <= AddSubResult;
-        ALUFlags <= ALUFlagsSigAddSub;
-    elsif ALUControl = "010" or ALUControl = "011" then -- logical operation (AND/XOR)
+        ALUFlags  <= ALUFlagsSigAddSub;
+    elsif ALUControl = "010" or ALUControl = "011" then -- AND/EOR
         ALUResult <= LogicalResult;
         ALUFlags  <= ALUFlagsSigLogical;
-    elsif ALUControl = "100" then -- logical or arithmetic shift (LSL, ASR)
+	elsif ALUControl = "100" then -- MOV
+		ALUResult <= SrcB;
+	elsif ALUControl = "101" then -- MVN
+		ALUResult <= not(SrcB);
+    elsif ALUControl = "110" or ALUControl = "111" then -- LSL/ASR
         ALUResult <= ShiftResult;
-	elsif ALUControl = "101" then -- MOV operation
-		ALUResult <= SrcA;
-	elsif ALUControl = "110" then -- MVN operation
-		ALUResult <= not(SrcA);
-    elsif ALUControl = "111" then -- comparison
-        ALUFlags <= ALUFlagsSigAddSub;
     end if;    
 end process;
         

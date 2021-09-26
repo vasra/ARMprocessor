@@ -11,16 +11,18 @@ entity CONDLOGIC is
 end CONDLOGIC;
 
 architecture Behavioral of CONDLOGIC is
-
-signal negative : std_logic := Flags(3);
-signal zero     : std_logic := Flags(2);
-signal carry    : std_logic := Flags(1);
-signal overflow : std_logic := Flags(0);
-
 begin
 
-process is
+process(Cond, Flags) is
+    variable negative : std_logic;
+    variable zero     : std_logic;
+    variable carry    : std_logic;
+    variable overflow : std_logic;
 begin
+    negative := Flags(3);
+    zero     := Flags(2);
+    carry    := Flags(1);
+    overflow := Flags(0);
     case Cond is
         when "0000" => CondEx_In <= zero;
         when "0001" => CondEx_In <= not(zero);
@@ -38,6 +40,7 @@ begin
         when "1101" => CondEx_In <= zero or (not(negative xnor overflow));
         when "1110" => CondEx_In <= '1';
         when "1111" => CondEx_In <= '1';
+        when others => CondEx_In <= '-';
     end case;
 end process;
 end Behavioral;

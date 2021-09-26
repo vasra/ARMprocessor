@@ -16,19 +16,19 @@ end WELOGIC;
 architecture Behavioral of WELOGIC is
 begin
 
-process is
+process(Op, SL, NoWrite_In) is
 begin
 	case Op is
 	when "00" =>
 		MemWrite_In <= '0';
-		if    SL = '0'                      then RegWrite_In <= '1'; FlagsWrite_In <= '0';
+		if    SL = '0' and NoWrite_In = '0' then RegWrite_In <= '1'; FlagsWrite_In <= '0';
 		elsif SL = '1' and NoWrite_In = '0' then RegWrite_In <= '1'; FlagsWrite_In <= '1';
 		elsif SL = '1' and NoWrite_In = '1' then RegWrite_In <= '0'; FlagsWrite_In <= '1';
 		end if;
 	when "01" =>
 		FlagsWrite_In <= '0';
-		if    SL = '0' then RegWrite_In <= '1'; MemWrite_In <= '0';
-		elsif SL = '1' then RegWrite_In <= '0'; MemWrite_In <= '1';
+		if    SL = '1' and NoWrite_In = '0' then RegWrite_In <= '1'; MemWrite_In <= '0';
+		elsif SL = '0' and NoWrite_In = '0' then RegWrite_In <= '0'; MemWrite_In <= '1';
 		end if;
 	when "10" =>
 		RegWrite_In <= '0'; FlagsWrite_In <= '0'; MemWrite_In <= '0';

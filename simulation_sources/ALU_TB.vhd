@@ -14,7 +14,6 @@ component ALU is
         SrcA       : in std_logic_vector(31 downto 0);
         SrcB       : in std_logic_vector(31 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        Shift_type : in std_logic_vector(1 downto 0);
         ALUResult  : out std_logic_vector(31 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
@@ -24,7 +23,6 @@ signal ALUControl : std_logic_vector(2 downto 0);
 signal SrcA       : std_logic_vector(31 downto 0);
 signal SrcB       : std_logic_vector(31 downto 0);
 signal Shamt      : std_logic_vector(4 downto 0);
-signal Shift_type : std_logic_vector(1 downto 0);
 signal ALUResult  : std_logic_vector(31 downto 0);
 signal ALUFlags   : std_logic_vector(3 downto 0);
         
@@ -32,7 +30,7 @@ constant CLK_PERIOD : time := 10 ns;
 
 begin
 
-uut : ALU port map(ALUControl, SrcA, SrcB, Shamt, Shift_type, ALUResult, ALUFlags);
+uut : ALU port map(ALUControl, SrcA, SrcB, Shamt, ALUResult, ALUFlags);
 
 ALUTest : process is
 begin
@@ -56,7 +54,8 @@ begin
 --						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
 						 
 --    -- LSL test	
-    ALUControl <= "100"; Shift_type <= "00"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for 1 * CLK_PERIOD;
+    ALUControl <= "110"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for 1 * CLK_PERIOD;
+    ALUControl <= "111"; wait for 1 * CLK_PERIOD;
 	
 --	-- MOV test
 --	ALUControl <= "101"; SrcA <= x"000000FF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
