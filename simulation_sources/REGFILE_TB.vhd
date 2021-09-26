@@ -45,9 +45,9 @@ uut : REGFILE port map(CLK, WE, ADDR_R1, ADDR_R2, ADDR_W, DATA_IN, R15, DATA_OUT
 test : process is
 begin
 
-CLK <= '1'; WE <= '1'; wait for CLK_PERIOD;
-
-ADDR_W <= "1101"; DATA_IN <= x"0000FFFF"; ADDR_R1 <= "1111"; ADDR_R2 <= "0011"; R15 <= x"0F0F0F0F"; wait for CLK_PERIOD;
+CLK <= '1'; WE <= '1';
+ADDR_W <= "1101"; DATA_IN <= x"0000FFFF"; ADDR_R1 <= "1111"; ADDR_R2 <= "1101"; R15 <= x"0F0F0F0F"; wait for CLK_PERIOD;
+CLK <= '0'; WE <= '0'; ADDR_R2 <= "0011"; wait for CLK_PERIOD;
 
 end process;
 end Behavioral;

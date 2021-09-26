@@ -23,7 +23,8 @@ entity DATAPATH is
         Instruction : in std_logic_vector(N - 1 downto 0);
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
-
+        Shamt       : in std_logic_vector(4 downto 0);
+        
         -- outputs
         ALUFlags : out std_logic_vector(3 downto 0);
         
@@ -95,7 +96,6 @@ component ALU is
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        ShiftType  : in std_logic_vector(1 downto 0);
         ALUResult  : out std_logic_vector(N - 1 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
@@ -172,7 +172,7 @@ EXTEND_UNIT     : EXTEND port map(ImmSrc, Instr(23 downto 0), ExtImm);
 
 -- step 3
 ALUMUX   : MUX2TO1 port map(ALUSrc, RD2, ExtImm, SrcB);
-ALU_COMP : ALU port map(ALUControl, RD1, SrcB, ALUResultSig, ALUFlagsSig);
+ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ALUResultSig, ALUFlagsSig);
 STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 
 -- step 4
