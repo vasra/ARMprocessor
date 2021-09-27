@@ -28,54 +28,54 @@ end CONTROLUNIT;
 
 architecture Structural of CONTROLUNIT is
 
-component INSTRDEC is
-    port(
-        Op         : in std_logic_vector(1 downto 0);
-        Funct      : in std_logic_vector(5 downto 0);
-        Instr11to4 : in std_logic_vector(7 downto 0);
-        RegSrc     : out std_logic_vector(1 downto 0);
-        ALUSrc     : out std_logic;
-        ImmSrc     : out std_logic;
-        ALUControl : out std_logic_vector(1 downto 0);
-        MemToReg   : out std_logic;
-        NoWrite_In : out std_logic
-        );
-end component INSTRDEC;
-
-component WELOGIC is
-	port(
-		Op            : in std_logic_vector(1 downto 0);
-		SL            : in std_logic;
-		NoWrite_In    : in std_logic;
-		RegWrite_In   : out std_logic;
-		FlagsWrite_In : out std_logic;
-		MemWrite_In   : out std_logic
-		);
-end component WELOGIC;
-
-component PCLOGIC is
-    port(
-        Rd          : in std_logic_vector(3 downto 0);
-        Op1         : in std_logic;
-        RegWrite_In : in std_logic;
-        PCSrc_In    : out std_logic
-        );
-end component PCLOGIC;
-
-component CONDLOGIC is
-    port(
-        Cond  : in std_logic_vector(3 downto 0);
-        Flags : in std_logic_vector(3 downto 0);
-        CondEx_In : out std_logic
-        );
-end component CONDLOGIC;
-
-signal NoWrite_InSig    : std_logic;
-signal CondEx_InSig     : std_logic;
-signal FlagsWrite_InSig : std_logic;
-signal MemWrite_InSig   : std_logic;
-signal PCSrc_InSig      : std_logic;
-signal RegWrite_InSig   : std_logic;
+    component INSTRDEC is
+        port(
+            Op         : in std_logic_vector(1 downto 0);
+            Funct      : in std_logic_vector(5 downto 0);
+            Instr11to4 : in std_logic_vector(7 downto 0);
+            RegSrc     : out std_logic_vector(1 downto 0);
+            ALUSrc     : out std_logic;
+            ImmSrc     : out std_logic;
+            ALUControl : out std_logic_vector(1 downto 0);
+            MemToReg   : out std_logic;
+            NoWrite_In : out std_logic
+            );
+    end component INSTRDEC;
+    
+    component WELOGIC is
+        port(
+            Op            : in std_logic_vector(1 downto 0);
+            SL            : in std_logic;
+            NoWrite_In    : in std_logic;
+            RegWrite_In   : out std_logic;
+            FlagsWrite_In : out std_logic;
+            MemWrite_In   : out std_logic
+            );
+    end component WELOGIC;
+    
+    component PCLOGIC is
+        port(
+            Rd          : in std_logic_vector(3 downto 0);
+            Op1         : in std_logic;
+            RegWrite_In : in std_logic;
+            PCSrc_In    : out std_logic
+            );
+    end component PCLOGIC;
+    
+    component CONDLOGIC is
+        port(
+            Cond  : in std_logic_vector(3 downto 0);
+            Flags : in std_logic_vector(3 downto 0);
+            CondEx_In : out std_logic
+            );
+    end component CONDLOGIC;
+    
+    signal NoWrite_InSig    : std_logic;
+    signal CondEx_InSig     : std_logic;
+    signal FlagsWrite_InSig : std_logic;
+    signal MemWrite_InSig   : std_logic;
+    signal PCSrc_InSig      : std_logic;
+    signal RegWrite_InSig   : std_logic;
 
 begin
 

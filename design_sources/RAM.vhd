@@ -18,13 +18,13 @@ end RAM;
 
 architecture Behavioral of RAM is
 
-signal A : std_logic_vector(N - 1 downto 0);
-
-type RAM_array is array (2 ** N - 1 downto 0)
-    of std_logic_vector(M - 1 downto 0);
+    signal A : std_logic_vector(N - 1 downto 0);
     
-signal RAM : RAM_array; 
-
+    type RAM_array is array (2 ** N - 1 downto 0)
+        of std_logic_vector(M - 1 downto 0);
+        
+    signal RAM : RAM_array; 
+    
 begin
 
 -- A[N-1:0] = ALUResult[N+1:2]
