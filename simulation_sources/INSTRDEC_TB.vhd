@@ -17,7 +17,8 @@ component INSTRDEC is
         ImmSrc     : out std_logic;
         ALUControl : out std_logic_vector(2 downto 0);
         MemToReg   : out std_logic;
-        NoWrite_In : out std_logic
+        NoWrite_In : out std_logic;
+        Shamt      : out std_logic_vector(4 downto 0)
         );
 end component INSTRDEC;
 
@@ -30,12 +31,13 @@ signal ImmSrc     : std_logic;
 signal ALUControl : std_logic_vector(2 downto 0);
 signal MemToReg   : std_logic;
 signal NoWrite_In : std_logic;
+signal Shamt      : std_logic_vector(4 downto 0);
 
 constant CLK_PERIOD : time := 10 ns;
 
 begin
 
-uut : INSTRDEC port map(Op, Funct, Instr11to4, RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_In);
+uut : INSTRDEC port map(Op, Funct, Instr11to4, RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_In, Shamt);
 
 process is
 begin
@@ -48,15 +50,15 @@ begin
     Funct <= "100101"; wait for CLK_PERIOD; -- SUB(S)-I
     Funct <= "100000"; wait for CLK_PERIOD; -- AND(S)-I
     Funct <= "100001"; wait for CLK_PERIOD; -- AND(S)-I
-    Funct <= "111000"; wait for CLK_PERIOD; -- OR(S)-I
-    Funct <= "111001"; wait for CLK_PERIOD; -- OR(S)-I
+--    Funct <= "111000"; wait for CLK_PERIOD; -- OR(S)-I
+--    Funct <= "111001"; wait for CLK_PERIOD; -- OR(S)-I
     Funct <= "100010"; wait for CLK_PERIOD; -- EOR(S)-I
     Funct <= "100011"; wait for CLK_PERIOD; -- EOR(S)-I
     Funct <= "110101"; wait for CLK_PERIOD; -- CMP-I
     Funct <= "111010"; wait for CLK_PERIOD; -- MOV
     Funct <= "111011"; wait for CLK_PERIOD; -- MOV
     Funct <= "111110"; wait for CLK_PERIOD; -- MVN
-    Funct <= "111110"; wait for CLK_PERIOD; -- MVN
+    Funct <= "111111"; wait for CLK_PERIOD; -- MVN
     
     -- Register instructions
     Funct <= "001000"; wait for CLK_PERIOD; -- ADD(S)
@@ -65,16 +67,15 @@ begin
     Funct <= "000101"; wait for CLK_PERIOD; -- SUB(S)
     Funct <= "000000"; wait for CLK_PERIOD; -- AND(S)
     Funct <= "000001"; wait for CLK_PERIOD; -- AND(S)
-    Funct <= "011000"; wait for CLK_PERIOD; -- OR(S) 
-    Funct <= "011001"; wait for CLK_PERIOD; -- OR(S) 
+--    Funct <= "011000"; wait for CLK_PERIOD; -- OR(S) 
+--    Funct <= "011001"; wait for CLK_PERIOD; -- OR(S) 
     Funct <= "000010"; wait for CLK_PERIOD; -- EOR(S)
     Funct <= "000011"; wait for CLK_PERIOD; -- EOR(S)
     Funct <= "010101"; wait for CLK_PERIOD; -- CMP
-    Funct <= "011010";                      -- MOV
-    Instr11to4 <= (others => '0'); wait for CLK_PERIOD;
-    
-    Instr11to4 <= "00001000"; wait for CLK_PERIOD; -- LSL
-    Instr11to4 <= "00001100"; wait for CLK_PERIOD; -- ASR
+    Funct <= "011010";
+    Instr11to4 <= (others => '0'); wait for CLK_PERIOD; -- MOV
+    Instr11to4 <= "00001000"; wait for CLK_PERIOD;      -- LSL
+    Instr11to4 <= "00001100"; wait for CLK_PERIOD;      -- ASR
     
     -- Memory instructions
     Op <= "01";
@@ -83,7 +84,7 @@ begin
     Funct <= "011000"; wait for CLK_PERIOD; -- STR
     Funct <= "010000"; wait for CLK_PERIOD; -- STR
     
-    -- Branch instructions
+--    -- Branch instructions
     Op <= "10";
     Funct <= "100000"; wait for CLK_PERIOD; -- B
     Funct <= "100001"; wait for CLK_PERIOD;

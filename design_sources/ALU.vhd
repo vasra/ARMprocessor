@@ -25,7 +25,7 @@ begin
     A_s := signed('0' & SrcA(N - 1)& SrcA);
     B_s := signed('0' & SrcB(N - 1)& SrcB);
     
-    if    ALUControl = "001" or ALUControl = "111" then S_s := A_s - B_s;
+    if    ALUControl = "001" then S_s := A_s - B_s;
     elsif ALUControl = "000" then S_s := A_s + B_s;
     end if;
     
@@ -77,7 +77,7 @@ begin
         when "110" =>
             ALUResult <= std_logic_vector(shift_left(X_u, shamt_n));   -- LSL
         when "111" =>
-            ALUResult <= std_logic_vector(shift_right (X_s, shamt_n)); -- ASR
+            ALUResult <= std_logic_vector(shift_right(X_s, shamt_n)); -- ASR
         when others =>
             ALUResult <= (others => '-');
     end case;
@@ -105,8 +105,8 @@ end LOGICAL;
 
 architecture Behavioral of LOGICAL is
 
-    signal xorsig : std_logic_vector(N - 1 downto 0);
-    signal andsig : std_logic_vector(N - 1 downto 0);
+signal xorsig : std_logic_vector(N - 1 downto 0);
+signal andsig : std_logic_vector(N - 1 downto 0);
 
 begin
 
@@ -152,8 +152,25 @@ entity MOVER is
 end MOVER;
 
 architecture Behavioral of MOVER is
+    signal mov : std_logic_vector(N - 1 downto 0);
+    signal mvn : std_logic_vector(N - 1 downto 0);
 begin
-    ALUResult <= SrcB when ALUControl = "100" else not(SrcB) when ALUControl = "101";
+
+mover : for i in 0 to N - 1 generate
+    mov(i) <= SrcB(i);
+    mvn(i) <= not(SrcB(i));
+end generate;
+
+ALUResult <= mov when ALUControl = "100" else
+             mvn when ALUControl = "101";
+--move : process(ALUControl, SrcB) is
+--begin
+--    if ALUControl = "100" then
+--        ALUResult <= SrcB;
+--    elsif ALUControl = "101" then
+--        ALUResult <= not SrcB;
+--    end if;
+--end process;
 end Behavioral;
     
 -- The ALU
@@ -177,50 +194,50 @@ end ALU;
 
 architecture Behavioral of ALU is
 
-    component ADDSUB is
-        port(
-             ALUControl : in std_logic_vector(2 downto 0);
-             SrcA       : in std_logic_vector(N - 1 downto 0);
-             SrcB       : in std_logic_vector(N - 1 downto 0);
-             ALUResult  : out std_logic_vector(N - 1 downto 0);
-             ALUFlags   : out std_logic_vector(3 downto 0)
-             );
-    end component ADDSUB;
-    
-    component SHIFTER is
-        port(
-            ALUControl : in std_logic_vector(2 downto 0);
-            Shamt      : in std_logic_vector(4 downto 0);
-            SrcA       : in std_logic_vector(N - 1 downto 0);
-            ALUResult  : out std_logic_vector(N - 1 downto 0)
-            );
-    end component SHIFTER;
-    
-    component LOGICAL is
-        port(
-             ALUControl : in std_logic_vector(2 downto 0);
-             SrcA       : in std_logic_vector(N - 1 downto 0);
-             SrcB       : in std_logic_vector(N - 1 downto 0);
-             ALUResult  : out std_logic_vector(N - 1 downto 0);
-             ALUFlags   : out std_logic_vector(3 downto 0)
-             );
-    end component LOGICAL;
-    
-    component MOVER is
-        port(
-            ALUControl : in std_logic_vector(2 downto 0);
-            SrcB       : in std_logic_vector(N - 1 downto 0);
-            ALUResult  : out std_logic_vector(N - 1 downto 0)
-            );
-    end component MOVER;
-     
-    signal AddSubResult       : std_logic_vector(N - 1 downto 0);
-    signal ShiftResult        : std_logic_vector(N - 1 downto 0);
-    signal LogicalResult      : std_logic_vector(N - 1 downto 0);
-    signal MovResult          : std_logic_vector(N - 1 downto 0);
-    signal ALUFlagsSigAddSub  : std_logic_vector(3 downto 0);
-    signal ALUFlagsSigLogical : std_logic_vector(3 downto 0);
-    
+component ADDSUB is
+    port(
+         ALUControl : in std_logic_vector(2 downto 0);
+         SrcA       : in std_logic_vector(N - 1 downto 0);
+         SrcB       : in std_logic_vector(N - 1 downto 0);
+         ALUResult  : out std_logic_vector(N - 1 downto 0);
+         ALUFlags   : out std_logic_vector(3 downto 0)
+         );
+end component ADDSUB;
+
+component SHIFTER is
+    port(
+        ALUControl : in std_logic_vector(2 downto 0);
+        Shamt      : in std_logic_vector(4 downto 0);
+        SrcA       : in std_logic_vector(N - 1 downto 0);
+        ALUResult  : out std_logic_vector(N - 1 downto 0)
+        );
+end component SHIFTER;
+
+component LOGICAL is
+    port(
+         ALUControl : in std_logic_vector(2 downto 0);
+         SrcA       : in std_logic_vector(N - 1 downto 0);
+         SrcB       : in std_logic_vector(N - 1 downto 0);
+         ALUResult  : out std_logic_vector(N - 1 downto 0);
+         ALUFlags   : out std_logic_vector(3 downto 0)
+         );
+end component LOGICAL;
+
+component MOVER is
+    port(
+        ALUControl : in std_logic_vector(2 downto 0);
+        SrcB       : in std_logic_vector(N - 1 downto 0);
+        ALUResult  : out std_logic_vector(N - 1 downto 0)
+        );
+end component MOVER;
+ 
+signal AddSubResult       : std_logic_vector(N - 1 downto 0);
+signal ShiftResult        : std_logic_vector(N - 1 downto 0);
+signal LogicalResult      : std_logic_vector(N - 1 downto 0);
+signal MovResult          : std_logic_vector(N - 1 downto 0);
+signal ALUFlagsSigAddSub  : std_logic_vector(3 downto 0);
+signal ALUFlagsSigLogical : std_logic_vector(3 downto 0);
+
 begin
 
 ADDER_SUBBER  : ADDSUB   port map(ALUControl, SrcA, SrcB, AddSubResult, ALUFlagsSigAddSub);
@@ -236,10 +253,8 @@ begin
     elsif ALUControl = "010" or ALUControl = "011" then -- AND/EOR
         ALUResult <= LogicalResult;
         ALUFlags  <= ALUFlagsSigLogical;
-	elsif ALUControl = "100" then -- MOV
-		ALUResult <= SrcB;
-	elsif ALUControl = "101" then -- MVN
-		ALUResult <= not(SrcB);
+	elsif ALUControl = "100" or ALUControl = "101" then -- MOV/MVN
+		ALUResult <= MovResult;
     elsif ALUControl = "110" or ALUControl = "111" then -- LSL/ASR
         ALUResult <= ShiftResult;
     end if;    
