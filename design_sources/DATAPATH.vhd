@@ -20,18 +20,16 @@ entity DATAPATH is
         ImmSrc      : in std_logic;
         ReadData    : in std_logic_vector(N - 1 downto 0);
         RegWrite    : in std_logic;
-        Instruction : in std_logic_vector(N - 1 downto 0);
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
         Shamt       : in std_logic_vector(4 downto 0);
         
         -- outputs
-        ALUFlags : out std_logic_vector(3 downto 0);
-        
-        -- buffers
-        PCBuf     : buffer std_logic_vector(N - 1 downto 0);
+        Instr     : out std_logic_vector(N - 1 downto 0);
+        ALUFlags  : out std_logic_vector(3 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
-        WriteData : buffer std_logic_vector(N - 1 downto 0)
+        WriteData : out std_logic_vector(N - 1 downto 0);
+        Result    : out std_logic_vector(N - 1 downto 0)
         );
 end DATAPATH;
 
@@ -137,7 +135,7 @@ end component MUX2TO1;
 signal PCN          : std_logic_vector(N - 1 downto 0);
 signal PC_signal    : std_logic_vector(N - 1 downto 0);
 signal PCPlus4Sig   : std_logic_vector(N - 1 downto 0);
-signal Instr        : std_logic_vector(N - 1 downto 0);
+signal InstrSig     : std_logic_vector(N - 1 downto 0);
 signal RA1          : std_logic_vector(M - 1 downto 0);
 signal RA2          : std_logic_vector(M - 1 downto 0);
 signal WA           : std_logic_vector(M - 1 downto 0);
@@ -156,30 +154,30 @@ begin
 
 -- step 1
 PROGRAM_COUNTER    : PC port map(CLK, RESET, PCWrite, PCN, PC_signal);
-INSTRUCTION_MEMORY : ROM port map(PC_signal, Instr);
+INSTRUCTION_MEMORY : ROM port map(PC_signal, InstrSig);
 INC4               : PCPLUS4 port map(PC_signal, PCPlus4Sig);
 
 -- step 2
 FIRST_ALU_SRC   : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(0), Instr(19 downto 16), "1111", RA1);
+                          port map(RegSrc(0), InstrSig(19 downto 16), "1111", RA1);
 SECOND_ALU_SRC  : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(1), Instr(3 downto 0), Instr(15 downto 12), RA2);
+                          port map(RegSrc(1), InstrSig(3 downto 0), InstrSig(15 downto 12), RA2);
 ALU_DEST        : MUX2TO1 generic map(N => 4)
-                          port map(RegSrc(2), Instr(15 downto 12), "1110", WA);
+                          port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
 INC8            : PCPLUS4 port map(PCPlus4Sig, PCPlus8Sig);
 REGISTER_FILE   : REGFILE port map(CLK, RegWrite, RA1, RA2, WA, WD3, PCPlus8Sig, RD1, RD2);
-EXTEND_UNIT     : EXTEND port map(ImmSrc, Instr(23 downto 0), ExtImm);
+EXTEND_UNIT     : EXTEND port map(ImmSrc, InstrSig(23 downto 0), ExtImm);
 
 -- step 3
 ALUMUX   : MUX2TO1 port map(ALUSrc, RD2, ExtImm, SrcB);
-ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ALUResultSig, ALUFlagsSig);
+ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ALUResult, ALUFlagsSig);
 STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 
 -- step 4
 DATA_MEM : RAM port map(CLK, MemWrite, ALUResultSig, RD2, RD);
 
 -- step 5
-MEMMUX : MUX2TO1 port map(MemToReg, ALUResultSig, RD, MemMuxResult);
+MEMMUX : MUX2TO1 port map(MemToReg, ALUResult, RD, MemMuxResult);
 MUX    : MUX2TO1 port map(PCSrc, PCPlus4Sig, MemMuxResult, PCN);
 MUX2   : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig, WD3);
 

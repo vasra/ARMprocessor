@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use STD.ENV.ALL;
 
 entity ALU_TB is
 --  Port ( );
@@ -35,39 +36,42 @@ uut : ALU port map(ALUControl, SrcA, SrcB, Shamt, ALUResult, ALUFlags);
 ALUTest : process is
 begin
 	-- ADD
---	ALUControl <= "000"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
---	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait for 1 * CLK_PERIOD;
+	ALUControl <= "000"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
+	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait for 1 * CLK_PERIOD;
 						 
 	-- SUB
---	ALUControl <= "001"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
---	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait for 1 * CLK_PERIOD;
---						 SrcA <= x"FFFFFFFF"; SrcB <= x"0FFFFFFF"; wait for 1 * CLK_PERIOD;
+	ALUControl <= "001"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
+	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"FFFFFFFF"; SrcB <= x"0FFFFFFF"; wait for 1 * CLK_PERIOD;
 			
-    -- ÅOR
---	ALUControl <= "010"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
---						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
---						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
+    -- EOR
+	ALUControl <= "010"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
 	
     -- AND	
---	ALUControl <= "011"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
---						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
---						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
+	ALUControl <= "011"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for 1 * CLK_PERIOD;
 						 
     -- LSL
-    ALUControl <= "110"; Shamt <= "00010"; SrcA <= x"0000000F"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
     ALUControl <= "110"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for 1 * CLK_PERIOD;
+    
     -- ASR
-    ALUControl <= "111"; wait for 1 * CLK_PERIOD;
+    ALUControl <= "111"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for 1 * CLK_PERIOD;
 	
---	-- MOV test
+	-- MOV test
 	ALUControl <= "100"; SrcB <= x"FFFFFFFF"; wait for 1 * CLK_PERIOD;
 	
---	-- MVN test
+	-- MVN test
 	ALUControl <= "101"; wait for 1 * CLK_PERIOD;
-	
+
 --	-- CMP test
---	ALUControl <= "001"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait for 2 * CLK_PERIOD;
---						 SrcA <= x"0000000F"; SrcB <= x"000000F0"; wait for 1 * CLK_PERIOD;
---						 SrcA <= x"0000000F"; SrcB <= x"0000000F"; wait for 1 * CLK_PERIOD;
+	ALUControl <= "001"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"0000000F"; SrcB <= x"000000F0"; wait for 1 * CLK_PERIOD;
+						 SrcA <= x"0000000F"; SrcB <= x"0000000F"; wait for 1 * CLK_PERIOD;
+						 
+	report("Tests completed");
+	stop(2);
 end process;  
 end Behavioral;

@@ -14,15 +14,16 @@ entity CONTROLUNIT is
         Flags      : in std_logic_vector(3 downto 0);
 
         -- outputs
-        RegSrc     : out std_logic_vector(1 downto 0);
+        RegSrc     : out std_logic_vector(2 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
-        ALUControl : out std_logic_vector(1 downto 0);
+        ALUControl : out std_logic_vector(2 downto 0);
         MemToReg   : out std_logic;
         MemWrite   : out std_logic;
         FlagsWrite : out std_logic;
         RegWrite   : out std_logic;
-        PCSrc      : out std_logic
+        PCSrc      : out std_logic;
+        Shamt      : out std_logic_vector(4 downto 0)
         );
 end CONTROLUNIT;
 
@@ -33,12 +34,13 @@ component INSTRDEC is
         Op         : in std_logic_vector(1 downto 0);
         Funct      : in std_logic_vector(5 downto 0);
         Instr11to4 : in std_logic_vector(7 downto 0);
-        RegSrc     : out std_logic_vector(1 downto 0);
+        RegSrc     : out std_logic_vector(2 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
-        ALUControl : out std_logic_vector(1 downto 0);
+        ALUControl : out std_logic_vector(2 downto 0);
         MemToReg   : out std_logic;
-        NoWrite_In : out std_logic
+        NoWrite_In : out std_logic;
+        Shamt      : out std_logic_vector(4 downto 0)
         );
 end component INSTRDEC;
 
@@ -79,7 +81,7 @@ signal RegWrite_InSig   : std_logic;
 
 begin
 
-DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), Instr(11 downto 4), RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig);
+DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), Instr(11 downto 4), RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig, Shamt);
 WLOGIC      : WELOGIC   port map(Instr(27 downto 26), Instr(20), NoWrite_InSig, RegWrite_InSig, FlagsWrite_InSig, MemWrite_InSig);
 PC          : PCLOGIC   port map(Instr(15 downto 12), Instr(27), RegWrite_InSig, PCSrc_InSig);
 CONDITIONAL : CONDLOGIC port map(Instr(31 downto 28), Flags, CondEx_InSig);

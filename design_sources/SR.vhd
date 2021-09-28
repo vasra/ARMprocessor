@@ -19,12 +19,11 @@ begin
 
 process(CLK) is
 begin
-    if rising_edge(CLK) then
-        if RESET = '1' then
-            Flags <= (others => '0');
-        elsif FlagsWrite = '1' then
-            Flags <= ALUFlags;
-        end if;
+    if RESET = '1' then
+        Flags <= (others => '0');
+    elsif rising_edge(CLK) then
+        if FlagsWrite = '1' then
+            Flags <= ALUFlags; end if;
     end if;
 end process;
 end Behavioral;

@@ -75,7 +75,7 @@ begin
     X_s := signed(SrcA);
     case ALUControl is
         when "110" =>
-            ALUResult <= std_logic_vector(shift_left(X_u, shamt_n));   -- LSL
+            ALUResult <= std_logic_vector(shift_left(X_u, shamt_n)); -- LSL
         when "111" =>
             ALUResult <= std_logic_vector(shift_right(X_s, shamt_n)); -- ASR
         when others =>
@@ -133,7 +133,6 @@ ALUFlags(2) <= '1' when signed(xorsig) = 0  and ALUControl = "010" else
 -- C, V flags are always zero when performing logical operations
 ALUFlags(1) <= '0';
 ALUFlags(0) <= '0';
- 
 end Behavioral;
 
 library IEEE;
@@ -156,21 +155,9 @@ architecture Behavioral of MOVER is
     signal mvn : std_logic_vector(N - 1 downto 0);
 begin
 
-mover : for i in 0 to N - 1 generate
-    mov(i) <= SrcB(i);
-    mvn(i) <= not(SrcB(i));
-end generate;
+ALUResult <= SrcB when ALUControl = "100" else
+             not(SrcB) when ALUControl = "101";
 
-ALUResult <= mov when ALUControl = "100" else
-             mvn when ALUControl = "101";
---move : process(ALUControl, SrcB) is
---begin
---    if ALUControl = "100" then
---        ALUResult <= SrcB;
---    elsif ALUControl = "101" then
---        ALUResult <= not SrcB;
---    end if;
---end process;
 end Behavioral;
     
 -- The ALU
