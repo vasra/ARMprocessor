@@ -16,6 +16,6 @@ architecture Behavioral of PCPLUS4 is
 
 begin
 
-PCPlus4 <= std_logic_vector(unsigned(PC) + 4);
-
+--PCPlus4 <= std_logic_vector(unsigned(PC) + 4);
+PCPlus4 <= std_logic_vector(unsigned(PC) + x"00000004");
 end Behavioral;

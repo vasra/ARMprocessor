@@ -74,24 +74,28 @@ uut : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, AL
                         ALUFlags, WriteData, Result,
                         PCbuf, Instr, ALUResult);
 
-dpath : process is
-    variable rst : std_logic := '1';
+CLK_process : process is
 begin
-if rst = '1' then
+    CLK <='0'; wait for CLK_PERIOD;
+    CLK <='1'; wait for CLK_PERIOD;
+end process;
+
+dpath : process is
+begin
     RESET <= '1';
-    rst := '0';
     wait for 100 ns;
-end if;
 
-CLK <= '0'; RESET <= '0'; wait for 2 * CLK_PERIOD;
-ImmSrc <= '0'; ALUSrc <= '1'; MemWrite <='0'; FlagsWrite <= '1'; MemToReg <= '0'; PcSrc <= '1'; PCWrite <= '1'; RegSrc <= "010";
-ALUControl <= "000"; RegWrite <= '1'; Shamt <= "00000"; PCbuf <= x"00000000";
-wait for CLK_PERIOD;
-
-CLK <= '1'; wait for CLK_PERIOD;
-
-stop(2);
---ALUControl <= "001";
---wait for CLK_PERIOD;
+    wait until(falling_edge(CLK));
+    RESET <= '0';
+    ImmSrc <= '0'; ALUSrc <= '1'; MemWrite <='0'; FlagsWrite <= '1'; MemToReg <= '0'; PcSrc <= '1'; PCWrite <= '1'; RegSrc <= "000";
+    ALUControl <= "000"; RegWrite <= '1'; Shamt <= "00000"; PCbuf <= x"00000000";
+    wait until(rising_edge(CLK));
+    
+    for I in 0 to 3 loop
+        wait until(CLK'event);
+    end loop;
+    
+    report "Tests completed";
+    stop(2);
 end process;
 end Behavioral;

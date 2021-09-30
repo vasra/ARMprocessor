@@ -16,11 +16,11 @@ end ROM;
 architecture Behavioral of ROM is
     type ROM_array is array (0 to 2 ** N - 1) of std_logic_vector(M - 1 downto 0);
      constant ROM : ROM_array := (
-       x"E2822002", 
+       x"E3A00005", 
+	   x"E2811001",
+	   x"E0800001",
 	   
 	   -- Placeholders
-	   x"00000FF0",
-	   x"00000000",
 	   x"00000000",
 	   x"00000000",
 	   x"00000000",
