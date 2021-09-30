@@ -9,7 +9,7 @@ entity PC is
        CLK    : in std_logic;
        RESET  : in std_logic;
        WE     : in std_logic;
-       PCN    : in std_logic_vector(N - 1 downto 0);
+       PCN    : in std_logic_vector(N - 1 downto 0) := (others => '0');
        PC_out : buffer std_logic_vector(N - 1 downto 0)
        );
 end PC;

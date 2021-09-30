@@ -19,7 +19,7 @@ architecture Behavioral of ROM is
        x"E2822002", 
 	   
 	   -- Placeholders
-	   x"00000000",
+	   x"00000FF0",
 	   x"00000000",
 	   x"00000000",
 	   x"00000000",

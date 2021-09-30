@@ -8,8 +8,6 @@ entity CONTROLUNIT is
            );
     port(
         -- inputs
-        CLK        : in std_logic;
-        RESET      : in std_logic;
         Instr      : in std_logic_vector(N - 1 downto 0);
         Flags      : in std_logic_vector(3 downto 0);
 

@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use STD.ENV.ALL;
 
 entity DATAPATH_TB is
 --  Port ( );
@@ -82,14 +83,15 @@ if rst = '1' then
     wait for 100 ns;
 end if;
 
-CLK <= '1'; RESET <= '0'; wait for 2 * CLK_PERIOD;
+CLK <= '0'; RESET <= '0'; wait for 2 * CLK_PERIOD;
 ImmSrc <= '0'; ALUSrc <= '1'; MemWrite <='0'; FlagsWrite <= '1'; MemToReg <= '0'; PcSrc <= '1'; PCWrite <= '1'; RegSrc <= "010";
 ALUControl <= "000"; RegWrite <= '1'; Shamt <= "00000"; PCbuf <= x"00000000";
 wait for CLK_PERIOD;
 
-CLK <= '0'; wait for CLK_PERIOD;
+CLK <= '1'; wait for CLK_PERIOD;
 
-ALUControl <= "001";
-wait for CLK_PERIOD;
+stop(2);
+--ALUControl <= "001";
+--wait for CLK_PERIOD;
 end process;
 end Behavioral;
