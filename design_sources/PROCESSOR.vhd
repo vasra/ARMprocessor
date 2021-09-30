@@ -61,11 +61,14 @@ component DATAPATH is
         Shamt       : in std_logic_vector(4 downto 0);
         
         -- outputs
-        Instr     : buffer std_logic_vector(N - 1 downto 0);
         ALUFlags  : out std_logic_vector(3 downto 0);
-        ALUResult : buffer std_logic_vector(N - 1 downto 0);
         WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0)
+        Result    : out std_logic_vector(N - 1 downto 0);
+        
+        -- buffers
+        PCbuf     : buffer std_logic_vector(N - 1 downto 0);
+        Instr     : buffer std_logic_vector(N - 1 downto 0);
+        ALUResult : buffer std_logic_vector(N - 1 downto 0)
         );
 end component DATAPATH;
 

@@ -25,11 +25,14 @@ entity DATAPATH is
         Shamt       : in std_logic_vector(4 downto 0);
         
         -- outputs
-        Instr     : out std_logic_vector(N - 1 downto 0);
         ALUFlags  : out std_logic_vector(3 downto 0);
-        ALUResult : buffer std_logic_vector(N - 1 downto 0);
         WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0)
+        Result    : out std_logic_vector(N - 1 downto 0);
+        
+        -- buffers
+        PCbuf     : buffer std_logic_vector(N - 1 downto 0);
+        Instr     : buffer std_logic_vector(N - 1 downto 0);
+        ALUResult : buffer std_logic_vector(N - 1 downto 0)
         );
 end DATAPATH;
 
@@ -41,14 +44,14 @@ component PC is
        RESET  : in std_logic;
        WE     : in std_logic;
        PCN    : in std_logic_vector(N - 1 downto 0);
-       PC_out : out std_logic_vector(N - 1 downto 0)
+       PC_out : buffer std_logic_vector(N - 1 downto 0)
        );
 end component PC;
 
 component ROM is
     port(
         PC : in std_logic_vector(N - 1 downto 0);
-        RD : out std_logic_vector(N - 1 downto 0)
+        RD : buffer std_logic_vector(N - 1 downto 0)
         );
 end component ROM;
 
@@ -94,7 +97,7 @@ component ALU is
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        ALUResult  : out std_logic_vector(N - 1 downto 0);
+        ALUResult  : buffer std_logic_vector(N - 1 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
 end component ALU;
@@ -133,7 +136,6 @@ component MUX2TO1 is
 end component MUX2TO1;
 
 signal PCN          : std_logic_vector(N - 1 downto 0);
-signal PC_signal    : std_logic_vector(N - 1 downto 0);
 signal PCPlus4Sig   : std_logic_vector(N - 1 downto 0);
 signal InstrSig     : std_logic_vector(N - 1 downto 0);
 signal RA1          : std_logic_vector(M - 1 downto 0);
@@ -153,20 +155,20 @@ signal MemMuxResult : std_logic_vector(N - 1 downto 0);
 begin
 
 -- step 1
-PROGRAM_COUNTER    : PC port map(CLK, RESET, PCWrite, PCN, PC_signal);
-INSTRUCTION_MEMORY : ROM port map(PC_signal, InstrSig);
-INC4               : PCPLUS4 port map(PC_signal, PCPlus4Sig);
+PROGRAM_COUNTER    : PC port map(CLK, RESET, PCWrite, PCN, PCbuf);
+INSTRUCTION_MEMORY : ROM port map(PCbuf, Instr);
+INC4               : PCPLUS4 port map(PCbuf, PCPlus4Sig);
 
 -- step 2
 FIRST_ALU_SRC   : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(0), InstrSig(19 downto 16), "1111", RA1);
+                          port map(RegSrc(0), Instr(19 downto 16), "1111", RA1);
 SECOND_ALU_SRC  : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(1), InstrSig(3 downto 0), InstrSig(15 downto 12), RA2);
+                          port map(RegSrc(1), Instr(3 downto 0), Instr(15 downto 12), RA2);
 ALU_DEST        : MUX2TO1 generic map(N => 4)
-                          port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
+                          port map(RegSrc(2), Instr(15 downto 12), "1110", WA);
 INC8            : PCPLUS4 port map(PCPlus4Sig, PCPlus8Sig);
 REGISTER_FILE   : REGFILE port map(CLK, RegWrite, RA1, RA2, WA, WD3, PCPlus8Sig, RD1, RD2);
-EXTEND_UNIT     : EXTEND port map(ImmSrc, InstrSig(23 downto 0), ExtImm);
+EXTEND_UNIT     : EXTEND port map(ImmSrc, Instr(23 downto 0), ExtImm);
 
 -- step 3
 ALUMUX   : MUX2TO1 port map(ALUSrc, RD2, ExtImm, SrcB);

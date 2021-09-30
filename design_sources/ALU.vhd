@@ -174,7 +174,7 @@ entity ALU is
         SrcA       : in std_logic_vector(N - 1 downto 0);
         SrcB       : in std_logic_vector(N - 1 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        ALUResult  : out std_logic_vector(N - 1 downto 0);
+        ALUResult  : buffer std_logic_vector(N - 1 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
 end ALU;
@@ -232,19 +232,11 @@ SHIFT         : SHIFTER  port map(ALUControl, Shamt, SrcA, ShiftResult);
 LOGIC         : LOGICAL  port map(ALUControl, SrcA, SrcB, LogicalResult, ALUFlagsSigLogical);
 MOVE          : MOVER    port map(ALUControl, SrcB, MovResult);
 
-process(SrcA, SrcB, ALUControl) is
-begin
-    if ALUControl = "000" or ALUControl = "001" then -- ADD/SUB
-        ALUResult <= AddSubResult;
-        ALUFlags  <= ALUFlagsSigAddSub;
-    elsif ALUControl = "010" or ALUControl = "011" then -- AND/EOR
-        ALUResult <= LogicalResult;
-        ALUFlags  <= ALUFlagsSigLogical;
-	elsif ALUControl = "100" or ALUControl = "101" then -- MOV/MVN
-		ALUResult <= MovResult;
-    elsif ALUControl = "110" or ALUControl = "111" then -- LSL/ASR
-        ALUResult <= ShiftResult;
-    end if;    
-end process;
-        
+ALUResult <= AddSubResult  when ALUControl = "000" or ALUControl = "001" else
+             LogicalResult when ALUControl = "010" or ALUControl = "011" else
+             MovResult     when ALUControl = "100" or ALUControl = "101" else
+             ShiftResult   when ALUControl = "110" or ALUControl = "111";
+
+ALUFlags <= ALUFlagsSigAddSub  when ALUControl = "000" or ALUControl = "001" else
+            ALUFlagsSigLogical when ALUControl = "010" or ALUControl = "011";
 end Behavioral;

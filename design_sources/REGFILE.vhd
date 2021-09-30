@@ -23,7 +23,7 @@ end REGFILE;
 architecture Behavioral of REGFILE is
     type RF_array is array(0 to 2 ** N - 1) of 
         std_logic_vector(M - 1 downto 0);
-    signal RF : RF_array;
+    signal RF : RF_array := (others => (others => '0'));
 begin
 
 REG_FILE: process(CLK) is
