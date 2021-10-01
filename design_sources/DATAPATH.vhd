@@ -137,7 +137,6 @@ end component MUX2TO1;
 
 signal PCN          : std_logic_vector(N - 1 downto 0);
 signal PCPlus4Sig   : std_logic_vector(N - 1 downto 0);
-signal InstrSig     : std_logic_vector(N - 1 downto 0);
 signal RA1          : std_logic_vector(M - 1 downto 0);
 signal RA2          : std_logic_vector(M - 1 downto 0);
 signal WA           : std_logic_vector(M - 1 downto 0);
@@ -147,7 +146,6 @@ signal RD2          : std_logic_vector(N - 1 downto 0);
 signal WD3          : std_logic_vector(N - 1 downto 0);
 signal ExtImm       : std_logic_vector(N - 1 downto 0);
 signal SrcB         : std_logic_vector(N - 1 downto 0);
-signal ALUResultSig : std_logic_vector(N - 1 downto 0);
 signal ALUFlagsSig  : std_logic_vector(3 downto 0);
 signal RD           : std_logic_vector(N - 1 downto 0);
 signal MemMuxResult : std_logic_vector(N - 1 downto 0);
@@ -176,7 +174,7 @@ ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ALUResult, ALUFlagsSig);
 STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 
 -- step 4
-DATA_MEM : RAM port map(CLK, MemWrite, ALUResultSig, RD2, RD);
+DATA_MEM : RAM port map(CLK, MemWrite, ALUResult, RD2, RD);
 
 -- step 5
 MEMMUX : MUX2TO1 port map(MemToReg, ALUResult, RD, MemMuxResult);

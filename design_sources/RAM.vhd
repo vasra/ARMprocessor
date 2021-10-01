@@ -27,18 +27,18 @@ signal RAM : RAM_array;
 
 begin
 
--- A[N-1:0] = ALUResult[N+1:2]
-A(N - 1 downto 0) <= ALUResult(N + 1 downto 2);
 
 Block_RAM: process(CLK) is
 begin
     if rising_edge(CLK) then
         if WE = '1' then
-            RAM(to_integer(unsigned(A))) <= WriteData;
+            -- A[N-1:0] = ALUResult[N+1:2]
+            RAM(to_integer(unsigned(ALUResult(N + 1 downto 2)))) <= WriteData;
         end if;
     end if;
 end process;
 
-RD <= RAM(to_integer(unsigned(A)));
+-- A[N-1:0] = ALUResult[N+1:2]
+RD <= RAM(to_integer(unsigned(ALUResult(N + 1 downto 2))));
 
 end Behavioral;

@@ -53,10 +53,8 @@ begin
     
     wait until(falling_edge(CLK));
     RESET <= '0';
-    Instr <= x"E2822002";
-    wait until(rising_edge(CLK));
 
-    for I in 0 to 3 loop
+    for I in 0 to 7 loop
         wait until(falling_edge(CLK));
         wait until(rising_edge(CLK));
     end loop;
