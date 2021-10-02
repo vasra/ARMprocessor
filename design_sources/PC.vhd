@@ -8,7 +8,7 @@ entity PC is
    port(
        CLK    : in std_logic;
        RESET  : in std_logic;
-       WE     : in std_logic;
+       WE     : in std_logic := '1';
        PCN    : in std_logic_vector(N - 1 downto 0) := (others => '0');
        PC_out : buffer std_logic_vector(N - 1 downto 0)
        );
@@ -24,8 +24,7 @@ begin
     if RESET = '1' then
         PC_out <= (others => '0');   
     elsif rising_edge(CLK) then
-        if WE = '1' then PC_out <= PCN;
-        end if;
+        PC_out <= PCN;
     end if;
 end process fetch;
 

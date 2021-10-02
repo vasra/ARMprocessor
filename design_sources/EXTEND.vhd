@@ -21,12 +21,12 @@ begin
 
 EXTEND : process(IMMSRC, DATA_IN) is
     variable DATA_IN_U    : unsigned(WIDTH_IN_z - 1 downto 0);
-    variable DATA_IN_S    : signed(WIDTH_IN_s - 1 downto 0);
+    variable DATA_IN_S    : signed(WIDTH_IN_s + 1 downto 0);
     variable EXTIMM_OUT_U : unsigned(WIDTH_OUT - 1 downto 0);
     variable EXTIMM_OUT_S : signed(WIDTH_OUT - 1 downto 0);
 begin
     DATA_IN_U := unsigned(DATA_IN(WIDTH_IN_z - 1 downto 0));
-    DATA_IN_S := signed(DATA_IN); 
+    DATA_IN_S := signed(DATA_IN & "00"); 
     
     if IMMSRC = '1' then
         EXTIMM_OUT_S := resize(DATA_IN_S, WIDTH_OUT);
