@@ -7,6 +7,7 @@ entity WELOGIC is
 		Op            : in std_logic_vector(1 downto 0);
 		SL            : in std_logic;
 		NoWrite_In    : in std_logic;
+		Funct         : in std_logic_vector(1 downto 0); -- The Instr[25:24] field, used to differentiate between the B and BL instructions
 		RegWrite_In   : out std_logic;
 		FlagsWrite_In : out std_logic;
 		MemWrite_In   : out std_logic
@@ -31,7 +32,10 @@ begin
 		elsif SL = '0' and NoWrite_In = '0' then RegWrite_In <= '0'; MemWrite_In <= '1';
 		end if;
 	when "10" =>
-		RegWrite_In <= '0'; FlagsWrite_In <= '0'; MemWrite_In <= '0';
+	    FlagsWrite_In <= '0'; MemWrite_In <= '0';
+		if    Funct = "10" then RegWrite_In <= '0';
+		elsif Funct = "11" then RegWrite_In <= '1';
+		end if;
 	when others =>
 		RegWrite_In <= '-'; FlagsWrite_In <= '-'; MemWrite_In <= '-';
 	end case;

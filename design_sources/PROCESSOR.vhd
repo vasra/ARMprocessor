@@ -11,10 +11,12 @@ entity PROCESSOR is
         CLK       : in std_logic;
         RESET     : in std_logic;
 
-        -- outputs
+        -- buffers
         PC        : buffer std_logic_vector(N - 1 downto 0);
         Instr     : buffer std_logic_vector(N - 1 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
+        
+        -- outputs
         WriteData : out std_logic_vector(N - 1 downto 0);
         Result    : out std_logic_vector(N - 1 downto 0)
     );

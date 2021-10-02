@@ -79,6 +79,7 @@ begin
 		when "10" =>
 		case Funct(5 downto 4) is
 			when "10"   => RegSrc <= "0-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "000"; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- B
+			when "11"   => RegSrc <= "1-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "000"; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- BL
 			when others => RegSrc <= "---"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
 		end case;
 		-- Other cases

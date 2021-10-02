@@ -47,6 +47,7 @@ component WELOGIC is
 		Op            : in std_logic_vector(1 downto 0);
 		SL            : in std_logic;
 		NoWrite_In    : in std_logic;
+		Funct         : in std_logic_vector(1 downto 0);
 		RegWrite_In   : out std_logic;
 		FlagsWrite_In : out std_logic;
 		MemWrite_In   : out std_logic
@@ -76,11 +77,14 @@ signal FlagsWrite_InSig : std_logic;
 signal MemWrite_InSig   : std_logic;
 signal PCSrc_InSig      : std_logic;
 signal RegWrite_InSig   : std_logic;
+signal FunctSig         : std_logic_vector(1 downto 0);
 
 begin
 
-DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), Instr(11 downto 4), RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig, Shamt);
-WLOGIC      : WELOGIC   port map(Instr(27 downto 26), Instr(20), NoWrite_InSig, RegWrite_InSig, FlagsWrite_InSig, MemWrite_InSig);
+DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), Instr(11 downto 4), 
+                                 RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig, Shamt);
+WLOGIC      : WELOGIC   port map(Instr(27 downto 26), Instr(20), NoWrite_InSig, Instr(25 downto 24),
+                                 RegWrite_InSig, FlagsWrite_InSig, MemWrite_InSig);
 PC          : PCLOGIC   port map(Instr(15 downto 12), Instr(27), RegWrite_InSig, PCSrc_InSig);
 CONDITIONAL : CONDLOGIC port map(Instr(31 downto 28), Flags, CondEx_InSig);
 

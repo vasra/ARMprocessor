@@ -17,13 +17,14 @@ end SR;
 architecture Behavioral of SR is
 begin
 
-process(CLK) is
+process(CLK, RESET) is
 begin
     if RESET = '1' then
         Flags <= (others => '0');
     elsif rising_edge(CLK) then
         if FlagsWrite = '1' then
-            Flags <= ALUFlags; end if;
+            Flags <= ALUFlags;
+        end if;
     end if;
 end process;
 end Behavioral;

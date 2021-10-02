@@ -54,7 +54,7 @@ begin
     wait until(falling_edge(CLK));
     RESET <= '0';
 
-    for I in 0 to 6 loop
+    for I in 0 to 10 loop
         wait until(falling_edge(CLK));
         wait until(rising_edge(CLK));
     end loop;

@@ -23,6 +23,8 @@ entity DATAPATH is
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
         Shamt       : in std_logic_vector(4 downto 0);
+        IRWrite     : in std_logic;
+        MAWrite     : in std_logic;
         
         -- outputs
         ALUFlags  : out std_logic_vector(3 downto 0);
@@ -135,8 +137,19 @@ component MUX2TO1 is
         );
 end component MUX2TO1;
 
+component NON_ARCH_REG is
+    port(
+        CLK     : in std_logic;
+        RESET   : in std_logic;
+        WE      : in std_logic;
+        DataIn  : in std_logic_vector(N - 1 downto 0);
+        DataOut : out std_logic_vector(N - 1 downto 0)
+        );
+end component NON_ARCH_REG;
+
 signal PCN          : std_logic_vector(N - 1 downto 0);
 signal PCPlus4Sig   : std_logic_vector(N - 1 downto 0);
+signal PCPlus4Sig2  : std_logic_vector(N - 1 downto 0);
 signal RA1          : std_logic_vector(M - 1 downto 0);
 signal RA2          : std_logic_vector(M - 1 downto 0);
 signal WA           : std_logic_vector(M - 1 downto 0);
@@ -145,10 +158,18 @@ signal RD1          : std_logic_vector(N - 1 downto 0);
 signal RD2          : std_logic_vector(N - 1 downto 0);
 signal WD3          : std_logic_vector(N - 1 downto 0);
 signal ExtImm       : std_logic_vector(N - 1 downto 0);
+signal ExtImmSig    : std_logic_vector(N - 1 downto 0);
+signal SrcA         : std_logic_vector(N - 1 downto 0);
 signal SrcB         : std_logic_vector(N - 1 downto 0);
+signal SrcBSig      : std_logic_vector(N - 1 downto 0);
 signal ALUFlagsSig  : std_logic_vector(3 downto 0);
 signal RD           : std_logic_vector(N - 1 downto 0);
 signal MemMuxResult : std_logic_vector(N - 1 downto 0);
+signal InstrSig     : std_logic_vector(N - 1 downto 0);
+signal DataMemAddr  : std_logic_vector(N - 1 downto 0);
+signal DataMemData  : std_logic_vector(N - 1 downto 0);
+signal RegSSig      : std_logic_vector(N - 1 downto 0);
+signal RDSig        : std_logic_vector(N - 1 downto 0);
 
 begin
 
@@ -157,28 +178,56 @@ PROGRAM_COUNTER    : PC port map(CLK, RESET, PCWrite, PCN, PCbuf);
 INSTRUCTION_MEMORY : ROM port map(PCbuf, Instr);
 INC4               : PCPLUS4 port map(PCbuf, PCPlus4Sig);
 
+-- registers between steps 1 and 2
+-- 1) Instruction register
+-- 2) Program Counter plus 4 register
+
+INSTR_REG   : NON_ARCH_REG port map(CLK, RESET, IRWrite, Instr, InstrSig);
+PCPLUS4_REG : NON_ARCH_REG port map(CLK, RESET, '1', PCPlus4Sig, PCPlus4Sig2);
+ 
 -- step 2
 FIRST_ALU_SRC   : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(0), Instr(19 downto 16), "1111", RA1);
+                          port map(RegSrc(0), InstrSig(19 downto 16), "1111", RA1);
 SECOND_ALU_SRC  : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(1), Instr(3 downto 0), Instr(15 downto 12), RA2);
+                          port map(RegSrc(1), InstrSig(3 downto 0), InstrSig(15 downto 12), RA2);
 ALU_DEST        : MUX2TO1 generic map(N => 4)
-                          port map(RegSrc(2), Instr(15 downto 12), "1110", WA);
-INC8            : PCPLUS4 port map(PCPlus4Sig, PCPlus8Sig);
+                          port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
+INC8            : PCPLUS4 port map(PCPlus4Sig2, PCPlus8Sig);
 REGISTER_FILE   : REGFILE port map(CLK, RegWrite, RA1, RA2, WA, WD3, PCPlus8Sig, RD1, RD2);
-EXTEND_UNIT     : EXTEND port map(ImmSrc, Instr(23 downto 0), ExtImm);
+EXTEND_UNIT     : EXTEND port map(ImmSrc, InstrSig(23 downto 0), ExtImm);
+
+-- registers between step 2 and 3
+-- 1) Register to hold RD1 value from the output of the register file
+-- 2) Register to hold RD2 value from the output of the register file
+-- 3) Register to hold immediate value from the immediate extension unit
+
+REG_A : NON_ARCH_REG port map(CLK, RESET, '1', RD1, SrcA);
+REG_B : NON_ARCH_REG port map(CLK, RESET, '1', RD2, SrcBSig);
+REG_I : NON_ARCH_REG port map(CLK, RESET, '1', ExtImm, ExtImmSig);
 
 -- step 3
-ALUMUX   : MUX2TO1 port map(ALUSrc, RD2, ExtImm, SrcB);
-ALU_COMP : ALU port map(ALUControl, RD1, SrcB, Shamt, ALUResult, ALUFlagsSig);
+ALUMUX   : MUX2TO1 port map(ALUSrc, SrcBSig, ExtImmSig, SrcB);
+ALU_COMP : ALU port map(ALUControl, SrcA, SrcB, Shamt, ALUResult, ALUFlagsSig);
 STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 
+-- registers between step 3 and 4
+-- 1) Register to hold the data memory address produced by the ALU
+-- 2) Register to hold the data to be written to the data memory
+-- 3) Register to hold the ALUResult
+REG_MA : NON_ARCH_REG port map(CLK, RESET, MAWrite, ALUResult, DataMemAddr);
+REG_WD : NON_ARCH_REG port map(CLK, RESET, '1', SrcBSig, DataMemData);
+REG_S  : NON_ARCH_REG port map(CLK, RESET, '1', ALUResult, RegSSig);
+
 -- step 4
-DATA_MEM : RAM port map(CLK, MemWrite, ALUResult, RD2, RD);
+DATA_MEM : RAM port map(CLK, MemWrite, DataMemAddr, DataMemData, RD);
+
+-- registers between step 4 and 5
+-- 1) Register to hold the data read from the data memory
+REG_RD : NON_ARCH_REG port map(CLK, RESET, '1', RD, RDSig);
 
 -- step 5
-MEMMUX : MUX2TO1 port map(MemToReg, ALUResult, RD, MemMuxResult);
-MUX    : MUX2TO1 port map(PCSrc, PCPlus4Sig, MemMuxResult, PCN);
-MUX2   : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig, WD3);
+MEMMUX : MUX2TO1 port map(MemToReg, RegSSig, RDSig, MemMuxResult);
+MUX    : MUX2TO1 port map(PCSrc, PCPlus4Sig2, MemMuxResult, PCN);
+MUX2   : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig2, WD3);
 
 end Structural;
