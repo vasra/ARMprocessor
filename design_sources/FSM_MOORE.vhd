@@ -54,7 +54,7 @@ begin
     end if;
 end process;
 
-ASYNC : process(CLK, current_state) is
+ASYNC : process(current_state) is
 begin
     -- initialize next state to S0
     next_state <= S0; PCWrite <= '0'; IRWrite <= '1'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
