@@ -10,6 +10,7 @@ entity FSM_MOORE is
         Rd         : in std_logic_vector(3 downto 0);
         NoWrite_In : in std_logic;
         CondEx_In  : in std_logic;
+        Funct      : in std_logic_vector(1 downto 0); -- The Instr[25:24] field, used to differentiate between the B and BL instructions
         PCWrite    : out std_logic;
         IRWrite    : out std_logic;
         RegWrite   : out std_logic;
@@ -53,67 +54,73 @@ begin
     end if;
 end process;
 
-ASYNC : process(RESET, Op, SL, Rd, NoWrite_In, CondEx_In) is
+ASYNC : process(CLK, current_state) is
 begin
-    if RESET = '1' then
-        current_state <= S0;
-    else
-        case current_state is
-            when S0 =>
-                next_state <= S0; PCWrite <= '0'; IRWrite <= '1'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-            when S1 =>
-                PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-                if    Op = "01" and CondEx_In = '1' then next_state <= S2a;
-                elsif Op = "00" and CondEx_In = '1' and NoWrite_In = '0' then next_state <= S2b;
-                elsif Op = "00" and CondEx_In = '1' and NoWrite_In = '1' then next_state <= S4g;
-                elsif CondEx_In = '0'               then next_state <= S4c;
-                end if;
-            when S2a =>
-                PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '1'; MemWrite <= '0'; PCSrc <= "00";
-                if SL = '1' then
-                    next_state <= S3;
-                elsif SL = '0' then
-                    next_state <= S4d;
-                end if;
-            when S2b =>
-                if SL ='0' then
-                    PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-                    if Rd /= "1111" then
-                        next_state <= S4a;
-                    else
-                        next_state <= S4b;
-                    end if;
-                elsif SL = '1' then
-                    if Rd /= "1111" then
-                        next_state <= S4e;
-                    else
-                        next_state <= S4f;
-                    end if;
-                end if;
-            when S3 =>
-                PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+    -- initialize next state to S0
+    next_state <= S0; PCWrite <= '0'; IRWrite <= '1'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+    case current_state is
+        when S0 =>
+            next_state <= S1; PCWrite <= '0'; IRWrite <= '1'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+        when S1 =>
+            PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+            if    Op = "01" and CondEx_In = '1' then next_state <= S2a;
+            elsif Op = "00" and CondEx_In = '1' and NoWrite_In = '0' then next_state <= S2b;
+            elsif Op = "00" and CondEx_In = '1' and NoWrite_In = '1' then next_state <= S4g;
+            elsif               CondEx_In = '0' then next_state <= S4c;
+            elsif Op = "10" and CondEx_In = '1' then next_state <= S4h;
+            end if;
+        when S2a =>
+            PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '1'; MemWrite <= '0'; PCSrc <= "00";
+            if SL = '1' then
+                next_state <= S3;
+            elsif SL = '0' then
+                next_state <= S4d;
+            end if;
+        when S2b =>
+            PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+            if SL ='0' then
                 if Rd /= "1111" then
                     next_state <= S4a;
                 else
                     next_state <= S4b;
                 end if;
-            when S4a =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '1'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-            when S4b =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "10";
-            when S4c =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-            when S4d =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '1'; PCSrc <= "00";
-            when S4e =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-            when S4f =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "10";
-            when S4g =>
-                next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
-            when others =>
-                next_state <= S0; PCWrite <= '-'; IRWrite <= '-'; RegWrite <= '-'; FlagsWrite <= '-'; MAWrite <= '-'; MemWrite <= '-'; PCSrc <= "--";
-        end case;
-    end if;
+            elsif SL = '1' then
+                if Rd /= "1111" then
+                    next_state <= S4e;
+                else
+                    next_state <= S4f;
+                end if;
+            end if;
+        when S3 =>
+            PCWrite <= '0'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+            if Rd /= "1111" then
+                next_state <= S4a;
+            else
+                next_state <= S4b;
+            end if;
+        when S4a =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '1'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+        when S4b =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "10";
+        when S4c =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+        when S4d =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '1'; PCSrc <= "00";
+        when S4e =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+        when S4f =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "10";
+        when S4g =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; RegWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+        when S4h =>
+            next_state <= S0; PCWrite <= '1'; IRWrite <= '0'; FlagsWrite <= '1'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "11";
+            if Funct = "10" then -- B
+                RegWrite <= '0';
+            elsif Funct = "11" then -- BL
+                RegWrite <= '1';
+            end if; 
+        when others =>
+            next_state <= S0; PCWrite <= '0'; IRWrite <= '1'; RegWrite <= '0'; FlagsWrite <= '0'; MAWrite <= '0'; MemWrite <= '0'; PCSrc <= "00";
+    end case;
 end process;
 end Behavioral;

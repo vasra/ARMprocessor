@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use STD.ENV.ALL;
 
 entity FSM_MOORE_TB is
 --  Port ( );
@@ -16,6 +17,7 @@ component FSM_MOORE is
         Rd         : in std_logic_vector(3 downto 0);
         NoWrite_In : in std_logic;
         CondEx_In  : in std_logic;
+        Funct      : in std_logic_vector(1 downto 0);
         PCWrite    : out std_logic;
         IRWrite    : out std_logic;
         RegWrite   : out std_logic;
@@ -33,6 +35,7 @@ signal SL         : std_logic;
 signal Rd         : std_logic_vector(3 downto 0);
 signal NoWrite_In : std_logic;
 signal CondEx_In  : std_logic;
+signal Funct      : std_logic_vector(1 downto 0);
 signal PCWrite    : std_logic;
 signal IRWrite    : std_logic;
 signal RegWrite   : std_logic;
@@ -45,7 +48,7 @@ constant CLK_PERIOD : time := 10 ns;
 
 begin
 
-uut: FSM_MOORE port map(CLK, RESET, Op, SL, Rd, NoWrite_In, CondEx_In,
+uut: FSM_MOORE port map(CLK, RESET, Op, SL, Rd, NoWrite_In, CondEx_In, Funct,
                         PCWrite, IRWrite, RegWrite,FlagsWrite, MAWrite, MemWrite, PCSrc);
                         
 CLK_process : process is
@@ -56,6 +59,20 @@ end process;
 
 Moore: process is
 begin
+    RESET <= '1';
+    wait for 100 ns;
     
+    wait until(falling_edge(CLK));
+    RESET <= '0';
+    
+    Op <= "00"; SL <= '1'; Rd <= "1001"; NoWrite_In <= '0'; CondEx_In <= '1'; Funct <= "--";
+
+    for I in 0 to 6 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+    report "Tests completed";
+    stop(2);
 end process;
 end Behavioral;

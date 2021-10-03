@@ -12,8 +12,8 @@ entity DATAPATH is
         CLK         : in std_logic;
         RESET       : in std_logic;
         PCWrite     : in std_logic;
-        PCSrc       : in std_logic;
-        RegSrc      : in std_logic_vector(2 downto 0);
+        PCSrc       : in std_logic_vector(1 downto 0);
+        RegSrc      : in std_logic_vector(1 downto 0);
         ALUSrc      : in std_logic;
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
@@ -137,6 +137,19 @@ component MUX2TO1 is
         );
 end component MUX2TO1;
 
+component MUX3TO1 is
+    generic(
+           N : positive := 32
+           );
+    port(
+        Src     : in std_logic_vector(1 downto 0);
+        SrcA    : in std_logic_vector(N - 1 downto 0);
+        SrcB    : in std_logic_vector(N - 1 downto 0);
+        SrcC    : in std_logic_vector(N - 1 downto 0);
+        DataOut : out std_logic_vector(N - 1 downto 0)
+        );
+end component MUX3TO1;
+
 component NON_ARCH_REG is
     port(
         CLK     : in std_logic;
@@ -190,10 +203,10 @@ FIRST_ALU_SRC   : MUX2TO1 generic map(N => 4)
                           port map(RegSrc(0), InstrSig(19 downto 16), "1111", RA1);
 SECOND_ALU_SRC  : MUX2TO1 generic map(N => 4) 
                           port map(RegSrc(1), InstrSig(3 downto 0), InstrSig(15 downto 12), RA2);
-ALU_DEST        : MUX2TO1 generic map(N => 4)
-                          port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
+--ALU_DEST        : MUX2TO1 generic map(N => 4)
+--                          port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
 INC8            : PCPLUS4 port map(PCPlus4Sig2, PCPlus8Sig);
-REGISTER_FILE   : REGFILE port map(CLK, RegWrite, RA1, RA2, WA, WD3, PCPlus8Sig, RD1, RD2);
+REGISTER_FILE   : REGFILE port map(CLK, RegWrite, RA1, RA2, InstrSig(15 downto 12), MemMuxResult, PCPlus8Sig, RD1, RD2);
 EXTEND_UNIT     : EXTEND port map(ImmSrc, InstrSig(23 downto 0), ExtImm);
 
 -- registers between step 2 and 3
@@ -227,7 +240,7 @@ REG_RD : NON_ARCH_REG port map(CLK, RESET, '1', RD, RDSig);
 
 -- step 5
 MEMMUX : MUX2TO1 port map(MemToReg, RegSSig, RDSig, MemMuxResult);
-MUX    : MUX2TO1 port map(PCSrc, PCPlus4Sig2, MemMuxResult, PCN);
-MUX2   : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig2, WD3);
+PCMUX  : MUX3TO1 port map(PCSrc, PCPlus4Sig2, ALUResult, MemMuxResult, PCN);
+--MUX2   : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig2, WD3);
 
 end Structural;
