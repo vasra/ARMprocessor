@@ -84,8 +84,10 @@ begin
 
 DECODER     : INSTRDEC  port map(Instr(27 downto 26), Instr(25 downto 20), Instr(11 downto 4), 
                                  RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, NoWrite_InSig, Shamt);
+                                 
 FSM         : FSM_MOORE port map(CLK, RESET, Instr(27 downto 26), Instr(20), Instr(15 downto 12), NoWrite_InSig, CondEx_InSig, Instr(25 downto 24),
                                  PCWrite, IRWrite, RegWrite, FlagsWrite, MAWrite, MemWrite, PCSrc);
+                                 
 CONDITIONAL : CONDLOGIC port map(Instr(31 downto 28), Flags, CondEx_InSig);
 
 end Structural;

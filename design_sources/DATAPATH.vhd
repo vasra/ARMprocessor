@@ -241,6 +241,5 @@ REG_RD : NON_ARCH_REG port map(CLK, RESET, '1', RD, RDSig);
 -- step 5
 MEMMUX : MUX2TO1 port map(MemToReg, RegSSig, RDSig, MemMuxResult);
 PCMUX  : MUX3TO1 port map(PCSrc, PCPlus4Sig2, ALUResult, MemMuxResult, PCN);
---MUX2   : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig2, WD3);
 
 end Structural;
