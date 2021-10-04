@@ -43,8 +43,8 @@ uut : PROCESSOR port map(CLK, RESET, PC, Instr, ALUResult, WriteData, Result);
 
 CLK_process : process is
 begin
-    CLK <= '0'; wait for CLK_PERIOD;
-    CLK <= '1'; wait for CLK_PERIOD;
+    CLK <= '0'; wait for CLK_PERIOD / 2;
+    CLK <= '1'; wait for CLK_PERIOD / 2;
 end process;
 
 ARM : process is
@@ -54,7 +54,7 @@ begin
     wait until(falling_edge(CLK));
     RESET <= '0';
 
-    for I in 0 to 10 loop
+    for I in 0 to 19 loop
         wait until(falling_edge(CLK));
         wait until(rising_edge(CLK));
     end loop;

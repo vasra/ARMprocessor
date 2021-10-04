@@ -14,7 +14,7 @@ entity CONTROLUNIT is
         Flags : in std_logic_vector(3 downto 0);
 
         -- InstrDec outputs
-        RegSrc     : out std_logic_vector(1 downto 0);
+        RegSrc     : out std_logic_vector(2 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
         ALUControl : out std_logic_vector(2 downto 0);
@@ -39,7 +39,7 @@ component INSTRDEC is
         Op         : in std_logic_vector(1 downto 0);
         Funct      : in std_logic_vector(5 downto 0);
         Instr11to4 : in std_logic_vector(7 downto 0);
-        RegSrc     : out std_logic_vector(1 downto 0);
+        RegSrc     : out std_logic_vector(2 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
         ALUControl : out std_logic_vector(2 downto 0);

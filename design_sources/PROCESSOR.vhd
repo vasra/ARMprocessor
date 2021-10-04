@@ -33,7 +33,7 @@ component CONTROLUNIT is
         Flags : in std_logic_vector(3 downto 0);
 
         -- InstrDec outputs
-        RegSrc     : out std_logic_vector(1 downto 0);
+        RegSrc     : out std_logic_vector(2 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
         ALUControl : out std_logic_vector(2 downto 0);
@@ -58,7 +58,7 @@ component DATAPATH is
         RESET       : in std_logic;
         PCWrite     : in std_logic;
         PCSrc       : in std_logic_vector(1 downto 0);
-        RegSrc      : in std_logic_vector(1 downto 0);
+        RegSrc      : in std_logic_vector(2 downto 0);
         ALUSrc      : in std_logic;
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
@@ -85,7 +85,7 @@ end component DATAPATH;
 
 signal PCWrite     : std_logic;
 signal PCSrc       : std_logic_vector(1 downto 0);
-signal RegSrc      : std_logic_vector(1 downto 0);
+signal RegSrc      : std_logic_vector(2 downto 0);
 signal ALUSrc      : std_logic;
 signal MemtoReg    : std_logic;
 signal ALUControl  : std_logic_vector(2 downto 0);
@@ -110,7 +110,7 @@ CU : CONTROLUNIT port map(CLK, RESET, Instr, ALUFlags,
                           RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, Shamt,
                           IRWrite, RegWrite, MAWrite, MemWrite, FlagsWrite, PCSrc, PCWrite);
                              
-DPATH : DATAPATH port map(CLK, RESET, RegWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, ReadData, RegWrite, FlagsWrite, MemWrite, Shamt, IRWrite, MAWrite,
+DPATH : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, ReadData, RegWrite, FlagsWrite, MemWrite, Shamt, IRWrite, MAWrite,
                           ALUFlags, WriteData, Result,
                           PC, Instr, ALUResult); 
 end Structural;

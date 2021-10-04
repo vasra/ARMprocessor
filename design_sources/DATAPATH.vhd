@@ -13,7 +13,7 @@ entity DATAPATH is
         RESET       : in std_logic;
         PCWrite     : in std_logic;
         PCSrc       : in std_logic_vector(1 downto 0);
-        RegSrc      : in std_logic_vector(1 downto 0);
+        RegSrc      : in std_logic_vector(2 downto 0);
         ALUSrc      : in std_logic;
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
@@ -199,15 +199,16 @@ INSTR_REG   : NON_ARCH_REG port map(CLK, RESET, IRWrite, Instr, InstrSig);
 PCPLUS4_REG : NON_ARCH_REG port map(CLK, RESET, '1', PCPlus4Sig, PCPlus4Sig2);
  
 -- step 2
-FIRST_ALU_SRC   : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(0), InstrSig(19 downto 16), "1111", RA1);
-SECOND_ALU_SRC  : MUX2TO1 generic map(N => 4) 
-                          port map(RegSrc(1), InstrSig(3 downto 0), InstrSig(15 downto 12), RA2);
---ALU_DEST        : MUX2TO1 generic map(N => 4)
---                          port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
-INC8            : PCPLUS4 port map(PCPlus4Sig2, PCPlus8Sig);
-REGISTER_FILE   : REGFILE port map(CLK, RegWrite, RA1, RA2, InstrSig(15 downto 12), MemMuxResult, PCPlus8Sig, RD1, RD2);
-EXTEND_UNIT     : EXTEND port map(ImmSrc, InstrSig(23 downto 0), ExtImm);
+FIRST_ALU_SRC  : MUX2TO1 generic map(N => 4) 
+                         port map(RegSrc(0), InstrSig(19 downto 16), "1111", RA1);
+SECOND_ALU_SRC : MUX2TO1 generic map(N => 4) 
+                         port map(RegSrc(1), InstrSig(3 downto 0), InstrSig(15 downto 12), RA2);                         
+WAMUX         : MUX2TO1 generic map(N => 4)
+                        port map(RegSrc(2), InstrSig(15 downto 12), "1110", WA);
+WDMUX         : MUX2TO1 port map(RegSrc(2), MemMuxResult, PCPlus4Sig2, WD3);
+INC8          : PCPLUS4 port map(PCPlus4Sig2, PCPlus8Sig);
+REGISTER_FILE : REGFILE port map(CLK, RegWrite, RA1, RA2, WA, WD3, PCPlus8Sig, RD1, RD2);
+EXTEND_UNIT   : EXTEND  port map(ImmSrc, InstrSig(23 downto 0), ExtImm);
 
 -- registers between step 2 and 3
 -- 1) Register to hold RD1 value from the output of the register file

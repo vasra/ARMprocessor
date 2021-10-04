@@ -65,9 +65,60 @@ begin
     wait until(falling_edge(CLK));
     RESET <= '0';
     
+    -- S0 -> S1 -> S2b -> S4e
     Op <= "00"; SL <= '1'; Rd <= "1001"; NoWrite_In <= '0'; CondEx_In <= '1'; Funct <= "--";
-
-    for I in 0 to 6 loop
+    for I in 0 to 3 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+     -- S0 -> S1 -> S4g
+    Op <= "00"; SL <= '1'; Rd <= "1001"; NoWrite_In <= '1'; CondEx_In <= '1'; Funct <= "--";
+    for I in 0 to 2 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+     -- S0 -> S1 -> S4c
+    CondEx_In <= '0';
+    for I in 0 to 2 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+    -- S0 -> S1 -> S2a -> S3 -> S4a
+    Op <= "01"; SL <= '1'; Rd <= "1001"; CondEx_In <= '1';
+    for I in 0 to 4 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+    -- S0 -> S1 -> S2a -> S3 -> S4b
+    Op <= "01"; SL <= '1'; Rd <= "1111"; CondEx_In <= '1';
+    for I in 0 to 4 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+    -- S0 -> S1 -> S2a -> S4d
+    Op <= "01"; SL <= '0'; Rd <= "1111"; CondEx_In <= '1';
+    for I in 0 to 3 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+    -- B instruction
+    -- S0 -> S1 -> S4h
+    Op <= "10"; CondEx_In <= '1'; Funct <= "10";
+    for I in 0 to 2 loop
+        wait until(rising_edge(CLK));
+        wait until(falling_edge(CLK));
+    end loop;
+    
+    -- BL instruction
+    -- S0 -> S1 -> S4h
+    Op <= "10"; CondEx_In <= '1'; Funct <= "11";
+    for I in 0 to 2 loop
         wait until(rising_edge(CLK));
         wait until(falling_edge(CLK));
     end loop;
