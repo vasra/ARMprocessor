@@ -7,7 +7,7 @@ entity INSTRDEC is
         Op         : in std_logic_vector(1 downto 0);
         Funct      : in std_logic_vector(5 downto 0);
         Instr11to4 : in std_logic_vector(7 downto 0); -- This input is the field Instruction[11:4]. It is necessary to differentiate between the MOV and LSL/ASR instructions
-        RegSrc     : out std_logic_vector(2 downto 0);
+        RegSrc     : out std_logic_vector(1 downto 0);
         ALUSrc     : out std_logic;
         ImmSrc     : out std_logic;
         ALUControl : out std_logic_vector(2 downto 0);
@@ -32,7 +32,7 @@ begin
 		case Funct(5 downto 1) is
 		-- All DP Imm instructions, besides CMP
 			when "10100" | "10010" | "10000" | "10001" | "11101" | "11111" => 
-				RegSrc <= "0-0"; ALUSrc <= '1'; ImmSrc <= '0'; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-');
+				RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-');
 				if    cmd = "0100" then ALUControl <= "000"; -- ADD(S)-I
 				elsif cmd = "0010" then ALUControl <= "001"; -- SUB(S)-I
 				elsif cmd = "0000" then ALUControl <= "010"; -- AND
@@ -43,10 +43,10 @@ begin
 				end if;
 			-- CMP Imm
 			when "11010" =>
-				RegSrc <= "0-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "001"; MemToReg <= '-'; NoWrite_In <= '1'; Shamt <= (others => '-');
+				RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "001"; MemToReg <= '-'; NoWrite_In <= '1'; Shamt <= (others => '-');
 			-- All DP Reg instructions, besides CMP
 			when "00100" | "00010" | "00000" | "00001" | "01101" | "01111" =>
-				RegSrc <= "000"; ALUSrc <= '0'; ImmSrc <= '-'; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-');
+				RegSrc <= "00"; ALUSrc <= '0'; ImmSrc <= '-'; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-');
 				if    cmd = "0100" then ALUControl <= "000"; -- ADD(S)-I
 				elsif cmd = "0010" then ALUControl <= "001"; -- SUB(S)-I
 				elsif cmd = "0000" then ALUControl <= "010"; -- AND
@@ -62,29 +62,29 @@ begin
 				end if;
 			-- CMP Reg
 			when "01010" =>
-				RegSrc <= "000"; ALUSrc <= '0'; ImmSrc <= '-'; ALUControl <= "001"; MemToReg <= '-'; NoWrite_In <= '1'; Shamt <= (others => '-');
+				RegSrc <= "00"; ALUSrc <= '0'; ImmSrc <= '-'; ALUControl <= "001"; MemToReg <= '-'; NoWrite_In <= '1'; Shamt <= (others => '-');
 			when others =>
-			    RegSrc <= "---"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
+			    RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
 		end case;
 		-- Mem Imm instructions
 		when "01" =>
 		case Funct is
-			when "011001" => RegSrc <= "0-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "000"; MemToReg <= '1'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- LDR + imm
-			when "001001" => RegSrc <= "0-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "001"; MemToReg <= '1'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- LDR - imm
-			when "011000" => RegSrc <= "010"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "000"; MemToReg <= '-'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- STR + imm
-			when "010000" => RegSrc <= "010"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "001"; MemToReg <= '-'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- STR - imm
-			when others   => RegSrc <= "---"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
+			when "011001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "000"; MemToReg <= '1'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- LDR + imm
+			when "001001" => RegSrc <= "-0"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "001"; MemToReg <= '1'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- LDR - imm
+			when "011000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "000"; MemToReg <= '-'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- STR + imm
+			when "010000" => RegSrc <= "10"; ALUSrc <= '1'; ImmSrc <= '0'; ALUControl <= "001"; MemToReg <= '-'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- STR - imm
+			when others   => RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
 		end case;
 		-- Branching instructions
 		when "10" =>
 		case Funct(5 downto 4) is
-			when "10"   => RegSrc <= "0-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "000"; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- B
-			when "11"   => RegSrc <= "1-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "000"; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- BL
-			when others => RegSrc <= "---"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
+			when "10"   => RegSrc <= "-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "000"; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- B
+			when "11"   => RegSrc <= "-1"; ALUSrc <= '1'; ImmSrc <= '1'; ALUControl <= "000"; MemToReg <= '0'; NoWrite_In <= '0'; Shamt <= (others => '-'); -- BL
+			when others => RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
 		end case;
 		-- Other cases
 		when others =>
-			RegSrc <= "---"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
+			RegSrc <= "--"; ALUSrc <= '-'; ImmSrc <= '-'; ALUControl <= "---"; MemToReg <= '-'; NoWrite_In <= '-'; Shamt <= (others => '-');
 	end case;
 end process;
 end Behavioral;
