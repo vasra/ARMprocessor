@@ -24,7 +24,6 @@ component DATAPATH is
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
         ImmSrc      : in std_logic;
-        ReadData    : in std_logic_vector(N - 1 downto 0);
         RegWrite    : in std_logic;
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
@@ -51,7 +50,6 @@ signal ALUSrc      : std_logic;
 signal MemtoReg    : std_logic;
 signal ALUControl  : std_logic_vector(2 downto 0);
 signal ImmSrc      : std_logic;
-signal ReadData    : std_logic_vector(31 downto 0);
 signal RegWrite    : std_logic;
 signal FlagsWrite  : std_logic;
 signal MemWrite    : std_logic;
@@ -70,7 +68,7 @@ signal ALUResult : std_logic_vector(31 downto 0);
 constant CLK_PERIOD : time := 10 ns;
 
 begin
-uut : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, ReadData, RegWrite, FlagsWrite, MemWrite, Shamt, 
+uut : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, RegWrite, FlagsWrite, MemWrite, Shamt, 
                         ALUFlags, WriteData, Result,
                         PCbuf, Instr, ALUResult);
 

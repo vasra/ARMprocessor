@@ -63,7 +63,6 @@ component DATAPATH is
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
         ImmSrc      : in std_logic;
-        ReadData    : in std_logic_vector(N - 1 downto 0);
         RegWrite    : in std_logic;
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
@@ -73,13 +72,13 @@ component DATAPATH is
         
         -- outputs
         ALUFlags  : out std_logic_vector(3 downto 0);
-        WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0);
         
         -- buffers
         PCbuf     : buffer std_logic_vector(N - 1 downto 0);
         Instr     : buffer std_logic_vector(N - 1 downto 0);
-        ALUResult : buffer std_logic_vector(N - 1 downto 0)
+        ALUResult : buffer std_logic_vector(N - 1 downto 0);
+        WriteData : buffer std_logic_vector(N - 1 downto 0);
+        Result    : buffer std_logic_vector(N - 1 downto 0)
         );
 end component DATAPATH;
 
@@ -90,7 +89,6 @@ signal ALUSrc      : std_logic;
 signal MemtoReg    : std_logic;
 signal ALUControl  : std_logic_vector(2 downto 0);
 signal ImmSrc      : std_logic;
-signal ReadData    : std_logic_vector(31 downto 0);
 signal RegWrite    : std_logic;
 signal FlagsWrite  : std_logic;
 signal IRWrite     : std_logic;
@@ -110,7 +108,7 @@ CU : CONTROLUNIT port map(CLK, RESET, Instr, ALUFlags,
                           RegSrc, ALUSrc, ImmSrc, ALUControl, MemToReg, Shamt,
                           IRWrite, RegWrite, MAWrite, MemWrite, FlagsWrite, PCSrc, PCWrite);
                              
-DPATH : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, ReadData, RegWrite, FlagsWrite, MemWrite, Shamt, IRWrite, MAWrite,
-                          ALUFlags, WriteData, Result,
-                          PC, Instr, ALUResult); 
+DPATH : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, RegWrite, FlagsWrite, MemWrite, Shamt, IRWrite, MAWrite,
+                          ALUFlags, 
+                          PC, Instr, ALUResult, WriteData, Result); 
 end Structural;

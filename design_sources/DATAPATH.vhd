@@ -18,7 +18,6 @@ entity DATAPATH is
         MemtoReg    : in std_logic;
         ALUControl  : in std_logic_vector(2 downto 0);
         ImmSrc      : in std_logic;
-        ReadData    : in std_logic_vector(N - 1 downto 0);
         RegWrite    : in std_logic;
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
@@ -28,13 +27,13 @@ entity DATAPATH is
         
         -- outputs
         ALUFlags  : out std_logic_vector(3 downto 0);
-        WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0);
         
         -- buffers
         PCbuf     : buffer std_logic_vector(N - 1 downto 0);
         Instr     : buffer std_logic_vector(N - 1 downto 0);
-        ALUResult : buffer std_logic_vector(N - 1 downto 0)
+        ALUResult : buffer std_logic_vector(N - 1 downto 0);
+        WriteData : buffer std_logic_vector(N - 1 downto 0);
+        Result    : buffer std_logic_vector(N - 1 downto 0)
         );
 end DATAPATH;
 
@@ -176,11 +175,9 @@ signal SrcA         : std_logic_vector(N - 1 downto 0);
 signal SrcB         : std_logic_vector(N - 1 downto 0);
 signal SrcBSig      : std_logic_vector(N - 1 downto 0);
 signal ALUFlagsSig  : std_logic_vector(3 downto 0);
-signal RD           : std_logic_vector(N - 1 downto 0);
 signal MemMuxResult : std_logic_vector(N - 1 downto 0);
 signal InstrSig     : std_logic_vector(N - 1 downto 0);
 signal DataMemAddr  : std_logic_vector(N - 1 downto 0);
-signal DataMemData  : std_logic_vector(N - 1 downto 0);
 signal RegSSig      : std_logic_vector(N - 1 downto 0);
 signal RDSig        : std_logic_vector(N - 1 downto 0);
 
@@ -229,15 +226,15 @@ STATUS   : SR port map(CLK, RESET, FlagsWrite, ALUFlagsSig, ALUFlags);
 -- 2) Register to hold the data to be written to the data memory
 -- 3) Register to hold the ALUResult
 REG_MA : NON_ARCH_REG port map(CLK, RESET, MAWrite, ALUResult, DataMemAddr);
-REG_WD : NON_ARCH_REG port map(CLK, RESET, '1', SrcBSig, DataMemData);
+REG_WD : NON_ARCH_REG port map(CLK, RESET, '1', SrcBSig, WriteData);
 REG_S  : NON_ARCH_REG port map(CLK, RESET, '1', ALUResult, RegSSig);
 
 -- step 4
-DATA_MEM : RAM port map(CLK, MemWrite, DataMemAddr, DataMemData, RD);
+DATA_MEM : RAM port map(CLK, MemWrite, DataMemAddr, WriteData, Result);
 
 -- registers between step 4 and 5
 -- 1) Register to hold the data read from the data memory
-REG_RD : NON_ARCH_REG port map(CLK, RESET, '1', RD, RDSig);
+REG_RD : NON_ARCH_REG port map(CLK, RESET, '1', Result, RDSig);
 
 -- step 5
 MEMMUX : MUX2TO1 port map(MemToReg, RegSSig, RDSig, MemMuxResult);

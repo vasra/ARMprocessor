@@ -15,7 +15,7 @@ component ALU is
         SrcA       : in std_logic_vector(31 downto 0);
         SrcB       : in std_logic_vector(31 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        ALUResult  : buffer std_logic_vector(31 downto 0);
+        ALUResult  : out std_logic_vector(31 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
 end component ALU;
@@ -34,8 +34,8 @@ begin
 
 CLK_process : process is
 begin
-    CLK <= '0'; wait for CLK_PERIOD / 2;
-    CLK <= '1'; wait for CLK_PERIOD / 2;
+    CLK <= '0'; wait for CLK_PERIOD;
+    CLK <= '1'; wait for CLK_PERIOD;
 end process;
  
 uut : ALU port map(ALUControl, SrcA, SrcB, Shamt, ALUResult, ALUFlags);

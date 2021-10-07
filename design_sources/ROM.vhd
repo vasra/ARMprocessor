@@ -16,12 +16,12 @@ end ROM;
 architecture Behavioral of ROM is
     type ROM_array is array (0 to 2 ** N - 1) of std_logic_vector(M - 1 downto 0);
      constant ROM : ROM_array := (
-        x"E3A00000",
-        x"E3E01000",
-        x"E0812000",
-        x"E24230FF",
-        x"EAFFFFF9",
-        "00000000100001010100000000000011", -- ADDEQ R4, R5, R3
+        x"E3A03102",
+        x"E3A04102",
+        X"E1530004",
+        x"0A000000",
+        x"E0810002",
+        x"E3A06005",
 	   -- Dummy values as placeholders
 	   others => (others => '0')
       );
