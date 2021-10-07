@@ -20,6 +20,7 @@ component ALU is
         );
 end component ALU;
 
+signal CLK        : std_logic;
 signal ALUControl : std_logic_vector(2 downto 0);
 signal SrcA       : std_logic_vector(31 downto 0);
 signal SrcB       : std_logic_vector(31 downto 0);
@@ -31,45 +32,54 @@ constant CLK_PERIOD : time := 10 ns;
 
 begin
 
+CLK_process : process is
+begin
+    CLK <= '0'; wait for CLK_PERIOD / 2;
+    CLK <= '1'; wait for CLK_PERIOD / 2;
+end process;
+ 
 uut : ALU port map(ALUControl, SrcA, SrcB, Shamt, ALUResult, ALUFlags);
 
 ALUTest : process is
 begin
+    wait for 100 ns;
+    wait until(falling_edge(CLK));
+    
 	-- ADD
-	ALUControl <= "000"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
-	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait for CLK_PERIOD;
+	ALUControl <= "000"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK));
+                         SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait until(falling_edge(CLK));
 						 
 	-- SUB
-	ALUControl <= "001"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
-	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait for CLK_PERIOD;
-						 SrcA <= x"FFFFFFFF"; SrcB <= x"0FFFFFFF"; wait for CLK_PERIOD;
+	ALUControl <= "001"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK)); 
+	                     SrcA <= x"00FFFFFF"; SrcB <= x"00ABCD11"; wait until(falling_edge(CLK));
+                         SrcA <= x"FFFFFFFF"; SrcB <= x"0FFFFFFF"; wait until(falling_edge(CLK));
 			
     -- EOR
-	ALUControl <= "010"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
-						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
-						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for CLK_PERIOD;
+	ALUControl <= "010"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK)); 
+						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK));
+						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait until(falling_edge(CLK));
 	
-    -- AND	
-	ALUControl <= "011"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
-						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
-						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait for CLK_PERIOD;
+    -- AND
+	ALUControl <= "011"; SrcA <= x"FFFFFFFF"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK)); 
+						 SrcA <= x"00000000"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK)); 
+						 SrcA <= x"F0F0F0F0"; SrcB <= x"0F0F0F0F"; wait until(falling_edge(CLK));
 						 
     -- LSL
-    ALUControl <= "110"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for CLK_PERIOD;
+    ALUControl <= "110"; Shamt <= "00010"; SrcA <= x"0000000F"; wait until(falling_edge(CLK));
     
     -- ASR
-    ALUControl <= "111"; Shamt <= "00010"; SrcA <= x"0000000F"; wait for CLK_PERIOD;
+    ALUControl <= "111"; Shamt <= "00010"; SrcA <= x"0000000F"; wait until(falling_edge(CLK));
 	
 	-- MOV test
-	ALUControl <= "100"; SrcB <= x"FFFFFFFF"; wait for CLK_PERIOD;
+	ALUControl <= "100"; SrcB <= x"FFFFFFFF"; wait until(falling_edge(CLK));
 	
 	-- MVN test
-	ALUControl <= "101"; wait for CLK_PERIOD;
+	ALUControl <= "101"; wait until(falling_edge(CLK));
 
 --	-- CMP test
-	ALUControl <= "001"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait for CLK_PERIOD;
-						 SrcA <= x"0000000F"; SrcB <= x"000000F0"; wait for CLK_PERIOD;
-						 SrcA <= x"0000000F"; SrcB <= x"0000000F"; wait for CLK_PERIOD;
+	ALUControl <= "001"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait until(falling_edge(CLK));
+						 SrcA <= x"0000000F"; SrcB <= x"000000F0"; wait until(falling_edge(CLK));
+						 SrcA <= x"0000000F"; SrcB <= x"0000000F"; wait until(falling_edge(CLK));
 						 
 	report("Tests completed");
 	stop(2);
