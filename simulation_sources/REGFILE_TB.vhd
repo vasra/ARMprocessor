@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use STD.ENV.ALL;
 
 entity REGFILE_TB is
 --  Port ( );
@@ -42,12 +43,30 @@ begin
 
 uut : REGFILE port map(CLK, WE, ADDR_R1, ADDR_R2, ADDR_W, DATA_IN, R15, DATA_OUT1, DATA_OUT2);
 
+CLK_process : process is
+begin
+    CLK <= '0'; wait for CLK_PERIOD / 2;
+    CLK <= '1'; wait for CLK_PERIOD / 2;
+end process;
+
 test : process is
 begin
 
-CLK <= '1'; WE <= '1';
-ADDR_W <= "1101"; DATA_IN <= x"0000FFFF"; ADDR_R1 <= "1111"; ADDR_R2 <= "1101"; R15 <= x"0F0F0F0F"; wait for CLK_PERIOD;
-CLK <= '0'; WE <= '0'; ADDR_R2 <= "0011"; wait for CLK_PERIOD;
+WE <= '0'; wait for 100 ns;
 
+wait until(falling_edge(CLK));
+ADDR_W <= "1110"; DATA_IN <= x"0000FFFF"; -- write to register R14 (shouldn't happen since now WE = '1')
+ADDR_R1 <= "1111"; R15 <= x"00000008";    -- read from register R15 (PC)
+ADDR_R2 <= "1110";                        -- read from register 14 (should be zero)
+wait until(rising_edge(CLK));
+
+wait until(falling_edge(CLK));
+WE <= '1'; ADDR_W <= "1110"; DATA_IN <= x"0000FFFF"; -- try again
+ADDR_R1 <= "0011";                                   -- read from register R3 (should be zero)
+ADDR_R2 <= "1110";                                   -- read from register 14
+wait until(falling_edge(CLK));
+
+report("Tests completed");
+stop(2);
 end process;
 end Behavioral;
