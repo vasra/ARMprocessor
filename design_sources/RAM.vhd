@@ -11,8 +11,8 @@ entity RAM is
         CLK       : in std_logic;
         WE        : in std_logic;
         ALUResult : in std_logic_vector(M - 1 downto 0);
-        WriteData : in std_logic_vector(M - 1 downto 0);
-        RD        : out std_logic_vector(M - 1 downto 0)
+        WriteData : buffer std_logic_vector(M - 1 downto 0);
+        RD        : buffer std_logic_vector(M - 1 downto 0)
         );
 end RAM;
 

@@ -10,7 +10,7 @@ entity NON_ARCH_REG is
         RESET   : in std_logic;
         WE      : in std_logic;
         DataIn  : in std_logic_vector(N - 1 downto 0);
-        DataOut : out std_logic_vector(N - 1 downto 0)
+        DataOut : buffer std_logic_vector(N - 1 downto 0)
         );
 end NON_ARCH_REG;
 

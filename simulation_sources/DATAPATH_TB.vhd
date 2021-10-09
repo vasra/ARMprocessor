@@ -18,7 +18,7 @@ component DATAPATH is
         CLK         : in std_logic;
         RESET       : in std_logic;
         PCWrite     : in std_logic;
-        PCSrc       : in std_logic;
+        PCSrc       : in std_logic_vector(1 downto 0);
         RegSrc      : in std_logic_vector(2 downto 0);
         ALUSrc      : in std_logic;
         MemtoReg    : in std_logic;
@@ -28,23 +28,25 @@ component DATAPATH is
         FlagsWrite  : in std_logic;
         MemWrite    : in std_logic;
         Shamt       : in std_logic_vector(4 downto 0);
+        IRWrite     : in std_logic;
+        MAWrite     : in std_logic;
         
         -- outputs
         ALUFlags  : out std_logic_vector(3 downto 0);
-        WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0);
         
         -- buffers
         PCbuf     : buffer std_logic_vector(N - 1 downto 0);
         Instr     : buffer std_logic_vector(N - 1 downto 0);
-        ALUResult : buffer std_logic_vector(N - 1 downto 0)
+        ALUResult : buffer std_logic_vector(N - 1 downto 0);
+        WriteData : buffer std_logic_vector(N - 1 downto 0);
+        Result    : buffer std_logic_vector(N - 1 downto 0)
         );
 end component DATAPATH;
 
 signal CLK         : std_logic;
 signal RESET       : std_logic;
 signal PCWrite     : std_logic;
-signal PCSrc       : std_logic;
+signal PCSrc       : std_logic_vector(1 downto 0);
 signal RegSrc      : std_logic_vector(2 downto 0);
 signal ALUSrc      : std_logic;
 signal MemtoReg    : std_logic;
@@ -54,6 +56,8 @@ signal RegWrite    : std_logic;
 signal FlagsWrite  : std_logic;
 signal MemWrite    : std_logic;
 signal Shamt       : std_logic_vector(4 downto 0);
+signal IRWrite     : std_logic;
+signal MAWrite     : std_logic;
 
 -- outputs
 signal ALUFlags  : std_logic_vector(3 downto 0);
@@ -68,9 +72,9 @@ signal ALUResult : std_logic_vector(31 downto 0);
 constant CLK_PERIOD : time := 10 ns;
 
 begin
-uut : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, RegWrite, FlagsWrite, MemWrite, Shamt, 
-                        ALUFlags, WriteData, Result,
-                        PCbuf, Instr, ALUResult);
+uut : DATAPATH port map(CLK, RESET, PCWrite, PCsrc, RegSrc, ALUSrc, MemtoReg, ALUControl, ImmSrc, RegWrite, FlagsWrite, MemWrite, Shamt, IRWrite, MAWrite,
+                        ALUFlags, 
+                        PCbuf, Instr, ALUResult, WriteData, Result);
 
 CLK_process : process is
 begin
@@ -85,7 +89,7 @@ begin
 
     wait until(falling_edge(CLK));
     RESET <= '0';
-    ImmSrc <= '0'; ALUSrc <= '1'; MemWrite <='0'; FlagsWrite <= '1'; MemToReg <= '0'; PcSrc <= '1'; PCWrite <= '1'; RegSrc <= "000";
+    ImmSrc <= '0'; ALUSrc <= '1'; MemWrite <='0'; FlagsWrite <= '1'; MemToReg <= '0'; PcSrc <= "01"; PCWrite <= '1'; RegSrc <= "000";
     ALUControl <= "000"; RegWrite <= '1'; Shamt <= "00000"; PCbuf <= x"00000000";
     wait until(rising_edge(CLK));
     

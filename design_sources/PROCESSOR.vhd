@@ -15,10 +15,8 @@ entity PROCESSOR is
         PC        : buffer std_logic_vector(N - 1 downto 0);
         Instr     : buffer std_logic_vector(N - 1 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
-        
-        -- outputs
-        WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0)
+        WriteData : buffer std_logic_vector(N - 1 downto 0);
+        Result    : buffer std_logic_vector(N - 1 downto 0)
         );
 end PROCESSOR;
 
