@@ -15,7 +15,7 @@ component ALU is
         SrcA       : in std_logic_vector(31 downto 0);
         SrcB       : in std_logic_vector(31 downto 0);
         Shamt      : in std_logic_vector(4 downto 0);
-        ALUResult  : out std_logic_vector(31 downto 0);
+        ALUResult  : buffer std_logic_vector(31 downto 0);
         ALUFlags   : out std_logic_vector(3 downto 0)
         );
 end component ALU;
@@ -76,7 +76,7 @@ begin
 	-- MVN test
 	ALUControl <= "101"; wait until(falling_edge(CLK));
 
---	-- CMP test
+	-- CMP test
 	ALUControl <= "001"; SrcA <= x"000000F0"; SrcB <= x"0000000F"; wait until(falling_edge(CLK));
 						 SrcA <= x"0000000F"; SrcB <= x"000000F0"; wait until(falling_edge(CLK));
 						 SrcA <= x"0000000F"; SrcB <= x"0000000F"; wait until(falling_edge(CLK));
