@@ -5,7 +5,7 @@ use IEEE.numeric_std.all;
 entity PROCESSOR is
     generic(
             N : positive := 32
-    );
+           );
     port(
         -- inputs
         CLK       : in std_logic;

@@ -22,8 +22,8 @@ component PROCESSOR is
         PC        : buffer std_logic_vector(N - 1 downto 0);
         Instr     : buffer std_logic_vector(N - 1 downto 0);
         ALUResult : buffer std_logic_vector(N - 1 downto 0);
-        WriteData : out std_logic_vector(N - 1 downto 0);
-        Result    : out std_logic_vector(N - 1 downto 0)
+        WriteData : buffer std_logic_vector(N - 1 downto 0);
+        Result    : buffer std_logic_vector(N - 1 downto 0)
     );
 end component PROCESSOR;
 
@@ -54,9 +54,8 @@ begin
     wait until(falling_edge(CLK));
     RESET <= '0';
 
-    for I in 0 to 30 loop
-        wait until(falling_edge(CLK));
-        wait until(rising_edge(CLK));
+    for I in 0 to 100 loop
+        wait for CLK_PERIOD;
     end loop;
     
     report "Test completed";
