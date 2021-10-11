@@ -54,7 +54,7 @@ begin
     wait until(falling_edge(CLK));
     RESET <= '0';
 
-    for I in 0 to 100 loop
+    for I in 0 to 120 loop
         wait for CLK_PERIOD;
     end loop;
     
