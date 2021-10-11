@@ -35,7 +35,7 @@ signal ALUResult : std_logic_vector(31 downto 0);
 signal WriteData : std_logic_vector(31 downto 0);
 signal Result    : std_logic_vector(31 downto 0);
 
-constant CLK_PERIOD : time := 10 ns;
+constant CLK_PERIOD : time := 4.848 ns;
 
 begin
 

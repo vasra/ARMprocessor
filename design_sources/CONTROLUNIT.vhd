@@ -71,8 +71,8 @@ end component FSM_MOORE;
 
 component CONDLOGIC is
     port(
-        Cond  : in std_logic_vector(3 downto 0);
-        Flags : in std_logic_vector(3 downto 0);
+        Cond      : in std_logic_vector(3 downto 0);
+        Flags     : in std_logic_vector(3 downto 0);
         CondEx_In : out std_logic
         );
 end component CONDLOGIC;
