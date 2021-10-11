@@ -10,20 +10,17 @@ end PROCESSOR_TB;
 architecture Behavioral of PROCESSOR_TB is
 
 component PROCESSOR is
-    generic(
-           N : positive := 32
-           );
     port(
         -- inputs
         CLK       : in std_logic;
         RESET     : in std_logic;
 
         -- outputs
-        PC        : buffer std_logic_vector(N - 1 downto 0);
-        Instr     : buffer std_logic_vector(N - 1 downto 0);
-        ALUResult : buffer std_logic_vector(N - 1 downto 0);
-        WriteData : buffer std_logic_vector(N - 1 downto 0);
-        Result    : buffer std_logic_vector(N - 1 downto 0)
+        PC        : buffer std_logic_vector(31 downto 0);
+        Instr     : buffer std_logic_vector(31 downto 0);
+        ALUResult : buffer std_logic_vector(31 downto 0);
+        WriteData : buffer std_logic_vector(31 downto 0);
+        Result    : buffer std_logic_vector(31 downto 0)
     );
 end component PROCESSOR;
 
@@ -35,7 +32,7 @@ signal ALUResult : std_logic_vector(31 downto 0);
 signal WriteData : std_logic_vector(31 downto 0);
 signal Result    : std_logic_vector(31 downto 0);
 
-constant CLK_PERIOD : time := 4.848 ns;
+constant CLK_PERIOD : time := 6 ns;
 
 begin
 
@@ -54,7 +51,7 @@ begin
     wait until(falling_edge(CLK));
     RESET <= '0';
 
-    for I in 0 to 120 loop
+    for I in 0 to 25 loop
         wait for CLK_PERIOD;
     end loop;
     

@@ -105,11 +105,11 @@ end component ALU;
 
 component SR is
     port(
-        CLK       : in std_logic;
+        CLK        : in std_logic;
         RESET      : in std_logic;
         FlagsWrite : in std_logic;
-        ALUFlags  : in std_logic_vector(3 downto 0);
-        Flags     : out std_logic_vector(3 downto 0)
+        ALUFlags   : in std_logic_vector(3 downto 0);
+        Flags      : out std_logic_vector(3 downto 0)
         );
 end component SR;
 
